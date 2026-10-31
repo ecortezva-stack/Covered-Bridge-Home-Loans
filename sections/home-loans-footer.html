@@ -1,0 +1,222 @@
+<!-- ============================================================
+     COVERED BRIDGE HOME LOANS — SHARED FOOTER
+     Paste once into a GHL Custom HTML/JavaScript element inside a
+     GLOBAL SECTION at the bottom of the site, and add that global
+     section to every page. Styles are scoped to .cbhl-footer.
+
+     >>> LEGAL DISCLOSURE REQUIRED BEFORE PUBLISHING <<<
+     The disclosure area below (.cbhl-footer__legal) is intentionally empty and
+     hidden. Before the site goes live, add the approved legal entity
+     name, NMLS number and any other required disclosures (e.g. Equal
+     Housing Opportunity statement/logo, state licensing) there.
+     Source pages identify "Boxcar Mortgage, LLC DBA Valor Home Loans,
+     NMLS #1969375" as the source business. Do NOT relabel that entity
+     or its registration as Covered Bridge Home Loans without
+     confirmation. The site is not ready to publish until this is done.
+     ============================================================ -->
+<style>
+  .cbhl-footer {
+    --hl-bg: #0D0D0D;
+    --hl-surface: #121619;
+    --hl-surface-2: #171B1E;
+    --hl-gold: #D2A34C;
+    --hl-gold-hover: #EAC266;
+    --hl-text: #F2F0EB;
+    --hl-muted: #BFBAAB;
+    --hl-line: rgba(210, 163, 76, 0.2);
+    --hl-line-strong: rgba(210, 163, 76, 0.5);
+    --hl-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --hl-sans: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+    --hl-gutter: clamp(20px, 4vw, 48px);
+
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: clamp(56px, 7vw, 88px) var(--hl-gutter) 28px;
+    background: #0A0A0A;
+    border-top: 1px solid rgba(210, 163, 76, 0.3);
+    color: var(--hl-text);
+    font-family: var(--hl-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+  }
+  .cbhl-footer,
+  .cbhl-footer *,
+  .cbhl-footer *::before,
+  .cbhl-footer *::after {
+    box-sizing: border-box;
+  }
+  .cbhl-footer .cbhl-footer__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .cbhl-footer .cbhl-footer__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr);
+    gap: clamp(32px, 5vw, 72px);
+  }
+  .cbhl-footer .cbhl-footer__name {
+    margin: 0 0 8px;
+    padding: 0;
+    font-family: var(--hl-serif);
+    font-size: 1.625rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--hl-text);
+  }
+  .cbhl-footer .cbhl-footer__tagline {
+    margin: 0 0 22px;
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--hl-muted);
+  }
+  .cbhl-footer .cbhl-footer__family {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--hl-gold);
+    text-decoration: none;
+  }
+  .cbhl-footer .cbhl-footer__family svg {
+    width: 15px;
+    height: 15px;
+  }
+  .cbhl-footer .cbhl-footer__family:hover {
+    color: var(--hl-gold-hover);
+  }
+  .cbhl-footer .cbhl-footer__heading {
+    margin: 4px 0 14px;
+    padding: 0;
+    font-family: var(--hl-sans);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--hl-gold);
+  }
+  .cbhl-footer .cbhl-footer__links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 10px 32px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cbhl-footer .cbhl-footer__links--single {
+    grid-template-columns: minmax(0, max-content);
+  }
+  .cbhl-footer .cbhl-footer__links li {
+    margin: 0;
+  }
+  .cbhl-footer .cbhl-footer__links li::marker {
+    content: none;
+  }
+  .cbhl-footer .cbhl-footer__links a {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--hl-text);
+    text-decoration: none;
+  }
+  .cbhl-footer .cbhl-footer__links a:hover {
+    color: var(--hl-gold);
+  }
+  .cbhl-footer a:focus-visible {
+    outline: 2px solid var(--hl-gold-hover);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+  /* Legal disclosure: hidden until approved wording is added. */
+  .cbhl-footer .cbhl-footer__legal {
+    margin: clamp(36px, 4vw, 48px) 0 0;
+    padding: 22px 0 0;
+    border-top: 1px solid rgba(210, 163, 76, 0.18);
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: var(--hl-muted);
+  }
+  .cbhl-footer .cbhl-footer__legal:empty {
+    display: none;
+  }
+  .cbhl-footer .cbhl-footer__legal p {
+    margin: 0 0 8px;
+  }
+  .cbhl-footer .cbhl-footer__bottom {
+    margin: clamp(36px, 4vw, 48px) 0 0;
+    padding: 22px 0 0;
+    border-top: 1px solid rgba(210, 163, 76, 0.18);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--hl-muted);
+  }
+  .cbhl-footer .cbhl-footer__legal:not(:empty) + .cbhl-footer__bottom {
+    margin-top: 16px;
+    padding-top: 0;
+    border-top: 0;
+  }
+  .cbhl-footer .cbhl-footer__bottom p {
+    margin: 0;
+  }
+  @media (max-width: 900px) {
+    .cbhl-footer .cbhl-footer__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .cbhl-footer .cbhl-footer__brand {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 520px) {
+    .cbhl-footer .cbhl-footer__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>
+
+<footer class="cbhl-footer">
+  <div class="cbhl-footer__inner">
+    <div class="cbhl-footer__grid">
+      <div class="cbhl-footer__brand">
+        <p class="cbhl-footer__name">Covered Bridge Home Loans</p>
+        <p class="cbhl-footer__tagline">Guidance for your home purchase or refinance.</p>
+        <a class="cbhl-footer__family" href="https://coveredbridgebrands.com/">Part of Covered Bridge Brands<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+      </div>
+      <nav aria-label="Footer">
+        <p class="cbhl-footer__heading">Explore</p>
+        <ul class="cbhl-footer__links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/loan-options">Loan Options</a></li>
+          <li><a href="/how-it-works">How It Works</a></li>
+          <li><a href="/homebuyer-resources">Homebuyer Resources</a></li>
+          <li><a href="/faqs">FAQs</a></li>
+          <li><a href="/about">About</a></li>
+          <li><a href="/contact">Contact</a></li>
+        </ul>
+      </nav>
+      <nav aria-label="Legal">
+        <p class="cbhl-footer__heading">Legal</p>
+        <ul class="cbhl-footer__links cbhl-footer__links--single">
+          <li><a href="/privacy-policy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Use</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="cbhl-footer__legal"><!--
+      LEGAL DISCLOSURE (required before publishing): add the approved
+      entity name, NMLS ID and other required disclosures here as
+      <p>…</p> lines, replacing this comment. See the note at the top.
+    --></div>
+    <div class="cbhl-footer__bottom">
+      <p>&copy; <span data-year>2026</span> Covered Bridge Home Loans. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var y = document.querySelectorAll('.cbhl-footer [data-year]');
+    Array.prototype.forEach.call(y, function (el) { el.textContent = String(new Date().getFullYear()); });
+  })();
+</script>

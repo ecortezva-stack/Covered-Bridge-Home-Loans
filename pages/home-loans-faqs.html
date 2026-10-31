@@ -1,0 +1,504 @@
+<!-- ============================================================
+     COVERED BRIDGE HOME LOANS — HOME LOAN FAQS PAGE BODY
+     Route: /faqs
+     SEO title: Home Loan FAQs | Covered Bridge Home Loans
+     Meta description: Answers to common questions about loan options, down payments, credit, documents, timing, appraisals, mortgage payments and refinancing.
+
+     Paste into one GHL Custom HTML/JavaScript element on this page,
+     between the shared header and footer global sections. Section:
+     full width, 0 padding, no background. Styles are scoped to .cbhl-faq.
+     ============================================================ -->
+<style>
+  .cbhl-faq {
+    --hl-bg: #0D0D0D;
+    --hl-surface: #121619;
+    --hl-surface-2: #171B1E;
+    --hl-gold: #D2A34C;
+    --hl-gold-hover: #EAC266;
+    --hl-text: #F2F0EB;
+    --hl-muted: #BFBAAB;
+    --hl-line: rgba(210, 163, 76, 0.2);
+    --hl-line-strong: rgba(210, 163, 76, 0.5);
+    --hl-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --hl-sans: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+    --hl-gutter: clamp(20px, 4vw, 48px);
+
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    font-family: var(--hl-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .cbhl-faq,
+  .cbhl-faq *,
+  .cbhl-faq *::before,
+  .cbhl-faq *::after {
+    box-sizing: border-box;
+  }
+  .cbhl-faq [hidden] {
+    display: none !important;
+  }
+
+  /* ---------- Layout ---------- */
+  .cbhl-faq .cbhl-faq__section {
+    position: relative;
+    margin: 0;
+    padding: clamp(64px, 8vw, 112px) var(--hl-gutter);
+    scroll-margin-top: 100px; /* clears the fixed header */
+  }
+  .cbhl-faq .cbhl-faq__section--surface {
+    background: var(--hl-surface);
+  }
+  .cbhl-faq .cbhl-faq__section + .cbhl-faq__section:not(.cbhl-faq__section--surface) {
+    border-top: 1px solid rgba(210, 163, 76, 0.12);
+  }
+  .cbhl-faq .cbhl-faq__inner {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .cbhl-faq .cbhl-faq__narrow {
+    max-width: 760px;
+  }
+  .cbhl-faq .cbhl-faq__header {
+    max-width: 720px;
+    margin: 0 0 clamp(36px, 5vw, 56px);
+  }
+
+  /* ---------- Type ---------- */
+  .cbhl-faq .cbhl-faq__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 0;
+    font-family: var(--hl-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--hl-gold);
+  }
+  .cbhl-faq .cbhl-faq__eyebrow svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 12px;
+  }
+  .cbhl-faq .cbhl-faq__h1 {
+    margin: 0 0 22px;
+    padding: 0;
+    font-family: var(--hl-serif);
+    font-size: clamp(2.5rem, 3.4vw + 1rem, 4.25rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-faq .cbhl-faq__h2 {
+    margin: 0 0 16px;
+    padding: 0;
+    font-family: var(--hl-serif);
+    font-size: clamp(1.875rem, 1.7vw + 1.2rem, 2.75rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-faq .cbhl-faq__h3 {
+    margin: 0 0 8px;
+    padding: 0;
+    font-family: var(--hl-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-faq .cbhl-faq__lede {
+    max-width: 38em;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(1.0625rem, 0.35vw + 0.98rem, 1.1875rem);
+    line-height: 1.7;
+    color: rgba(242, 240, 235, 0.9);
+  }
+  .cbhl-faq .cbhl-faq__p {
+    margin: 0 0 16px;
+    padding: 0;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--hl-muted);
+  }
+  .cbhl-faq .cbhl-faq__p:last-child {
+    margin-bottom: 0;
+  }
+  .cbhl-faq .cbhl-faq__p--sm {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .cbhl-faq .cbhl-faq__p a,
+  .cbhl-faq .cbhl-faq__lede a {
+    color: var(--hl-gold-hover);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .cbhl-faq .cbhl-faq__p a:hover,
+  .cbhl-faq .cbhl-faq__lede a:hover {
+    color: var(--hl-text);
+  }
+
+  /* ---------- Buttons and links ---------- */
+  .cbhl-faq .cbhl-faq__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 16px;
+    margin: clamp(30px, 3.6vw, 38px) 0 0;
+  }
+  .cbhl-faq .cbhl-faq__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 54px;
+    margin: 0;
+    padding: 0 28px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-family: var(--hl-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cbhl-faq .cbhl-faq__btn--gold {
+    background: var(--hl-gold);
+    color: #0D0D0D;
+  }
+  .cbhl-faq .cbhl-faq__btn--gold:hover {
+    background: var(--hl-gold-hover);
+    color: #0D0D0D;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(210, 163, 76, 0.25);
+  }
+  .cbhl-faq .cbhl-faq__btn--outline {
+    background: rgba(13, 13, 13, 0.35);
+    border-color: rgba(210, 163, 76, 0.65);
+    color: var(--hl-text);
+  }
+  .cbhl-faq .cbhl-faq__btn--outline:hover {
+    border-color: var(--hl-gold-hover);
+    color: var(--hl-gold-hover);
+  }
+  .cbhl-faq .cbhl-faq__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 3px;
+    border-bottom: 1px solid rgba(210, 163, 76, 0.45);
+    font-family: var(--hl-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hl-gold);
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .cbhl-faq .cbhl-faq__link svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    transition: transform 0.2s ease;
+  }
+  .cbhl-faq .cbhl-faq__link:hover {
+    color: var(--hl-gold-hover);
+    border-color: var(--hl-gold-hover);
+  }
+  .cbhl-faq .cbhl-faq__link:hover svg {
+    transform: translateX(3px);
+  }
+  .cbhl-faq a:focus-visible,
+  .cbhl-faq summary:focus-visible {
+    outline: 2px solid var(--hl-gold-hover);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  /* ---------- Closing call to action ---------- */
+  .cbhl-faq .cbhl-faq__cta {
+    text-align: center;
+    background:
+      radial-gradient(50% 80% at 50% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 70%),
+      var(--hl-surface);
+    border-top: 1px solid var(--hl-line);
+  }
+  .cbhl-faq .cbhl-faq__cta .cbhl-faq__inner {
+    max-width: 760px;
+  }
+  .cbhl-faq .cbhl-faq__cta .cbhl-faq__eyebrow,
+  .cbhl-faq .cbhl-faq__cta .cbhl-faq__actions {
+    justify-content: center;
+  }
+  .cbhl-faq .cbhl-faq__cta .cbhl-faq__lede {
+    margin: 0 auto;
+  }
+
+  /* ---------- Loan disclaimer ---------- */
+  .cbhl-faq .cbhl-faq__disclaimer {
+    margin: 0;
+    padding: 28px var(--hl-gutter) 32px;
+    background: var(--hl-bg);
+    border-top: 1px solid rgba(210, 163, 76, 0.14);
+  }
+  .cbhl-faq .cbhl-faq__disclaimer p {
+    max-width: 1180px;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--hl-muted);
+  }
+
+  @media (max-width: 1180px) {
+    .cbhl-faq .cbhl-faq__section {
+      scroll-margin-top: 84px;
+    }
+  }
+  @media (max-width: 480px) {
+    .cbhl-faq .cbhl-faq__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .cbhl-faq .cbhl-faq__btn {
+      width: 100%;
+      padding: 0 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cbhl-faq .cbhl-faq__btn,
+    .cbhl-faq .cbhl-faq__link,
+    .cbhl-faq .cbhl-faq__link svg {
+      transition: none;
+    }
+    .cbhl-faq .cbhl-faq__btn--gold:hover,
+    .cbhl-faq .cbhl-faq__link:hover svg {
+      transform: none;
+    }
+  }
+
+  .cbhl-faq .cbhl-faq__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Page hero ---------- */
+  .cbhl-faq .cbhl-faq__phero {
+    position: relative;
+    margin: 0;
+    padding: clamp(72px, 9vw, 128px) var(--hl-gutter) clamp(64px, 8vw, 104px);
+    background:
+      radial-gradient(55% 75% at 88% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 65%),
+      linear-gradient(180deg, #0D0D0D 0%, #101316 100%);
+    border-bottom: 1px solid var(--hl-line);
+  }
+  .cbhl-faq .cbhl-faq__phero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(40px, 6vw, 96px);
+    align-items: center;
+  }
+  .cbhl-faq .cbhl-faq__phero-copy {
+    max-width: 640px;
+  }
+  @media (max-width: 900px) {
+    .cbhl-faq .cbhl-faq__phero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------- Questions (native disclosure: keyboard and touch ready) ---------- */
+  .cbhl-faq .cbhl-faq__faq {
+    max-width: 880px;
+    margin: 0;
+    border-bottom: 1px solid var(--hl-line);
+  }
+  .cbhl-faq .cbhl-faq__faq details {
+    margin: 0;
+    border-top: 1px solid var(--hl-line);
+  }
+  .cbhl-faq .cbhl-faq__faq summary {
+    position: relative;
+    display: block;
+    padding: 24px 48px 24px 0;
+    font-family: var(--hl-serif);
+    font-size: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hl-text);
+    list-style: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .cbhl-faq .cbhl-faq__faq summary::-webkit-details-marker {
+    display: none;
+  }
+  .cbhl-faq .cbhl-faq__faq summary::before,
+  .cbhl-faq .cbhl-faq__faq summary::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    width: 16px;
+    height: 1.5px;
+    background: var(--hl-gold);
+    transition: transform 0.2s ease;
+  }
+  .cbhl-faq .cbhl-faq__faq summary::after {
+    transform: rotate(90deg);
+  }
+  .cbhl-faq .cbhl-faq__faq details[open] summary::after {
+    transform: rotate(0deg);
+  }
+  .cbhl-faq .cbhl-faq__faq summary:hover {
+    color: var(--hl-gold-hover);
+  }
+  .cbhl-faq .cbhl-faq__faq-body {
+    max-width: 70ch;
+    padding: 0 0 26px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cbhl-faq .cbhl-faq__faq summary,
+    .cbhl-faq .cbhl-faq__faq summary::after {
+      transition: none;
+    }
+  }
+</style>
+
+<div class="cbhl-faq">
+
+  <section class="cbhl-faq__phero" aria-labelledby="cbhl-faq-title">
+    <div class="cbhl-faq__inner cbhl-faq__phero-grid">
+      <div class="cbhl-faq__phero-copy">
+        <p class="cbhl-faq__eyebrow"><svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1.5 11 10 2.5l8.5 8.5"/></svg><span>FAQs</span></p>
+        <h1 class="cbhl-faq__h1" id="cbhl-faq-title">Your home-loan questions, answered.</h1>
+        <p class="cbhl-faq__lede">Clear starting points for your homebuying or refinancing conversation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cbhl-faq__section" aria-label="Frequently asked questions">
+    <div class="cbhl-faq__inner">
+      <div class="cbhl-faq__faq">
+        <details>
+          <summary>How do I know which loan is right for me?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">The appropriate options depend on your finances, goals, property and program eligibility. Start with a conversation rather than choosing a program based on one advertised feature.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Do I have to be a first-time buyer?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">No. The available options include financing for eligible first-time and repeat buyers, as well as refinancing.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How much will I need for a down payment?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">That depends on the program, property, borrower and transaction. Ask the team to explain the options and other upfront costs relevant to your situation.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Is down payment assistance available?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Assistance may be available through qualifying programs, but funding, eligibility and availability vary. Ask which options may apply.</p>
+          </div>
+        </details>
+        <details>
+          <summary>What credit score do I need?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Requirements differ by program and individual circumstances. A credit score alone does not establish approval or determine every available option.</p>
+          </div>
+        </details>
+        <details>
+          <summary>What documents should I prepare?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Common requests include identification, income documentation and account statements. Requirements differ for employed, self-employed and fixed-income borrowers. See <a href="/homebuyer-resources">Homebuyer Resources</a> for general examples.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How long does the mortgage process take?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Timing depends on the transaction, document completeness, property requirements, underwriting and closing conditions. The team can discuss the expected process for your situation.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Are an appraisal and a home inspection the same?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">No. An appraisal assesses value for financing purposes. A home inspection evaluates aspects of a property&rsquo;s condition. Ask which requirements apply to your transaction.</p>
+          </div>
+        </details>
+        <details>
+          <summary>What is included in a mortgage payment?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Depending on the loan, payments may include principal, interest, property taxes, homeowners insurance and mortgage insurance. The exact structure varies.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Can I refinance my current mortgage?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Potential options depend on your existing loan, finances, property, goals and available terms. Consider costs and potential benefits before proceeding.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Does contacting you mean I am approved?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">No. A website inquiry starts a conversation. Approval requires the appropriate application, review and underwriting.</p>
+          </div>
+        </details>
+        <details>
+          <summary>How do I get started?</summary>
+          <div class="cbhl-faq__faq-body">
+            <p class="cbhl-faq__p">Use the <a href="/contact">Contact page</a> to share your questions and request a conversation.</p>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="cbhl-faq__section cbhl-faq__cta" aria-labelledby="cbhl-faq-closing">
+    <div class="cbhl-faq__inner">
+      <h2 class="cbhl-faq__h2" id="cbhl-faq-closing">Still have questions?</h2>
+      <div class="cbhl-faq__actions">
+        <a class="cbhl-faq__btn cbhl-faq__btn--gold" href="/contact">Talk About Your Home Loan</a>
+      </div>
+    </div>
+  </section>
+
+  <aside class="cbhl-faq__disclaimer" aria-label="Loan disclaimer">
+    <p>Loan options, eligibility, down payments and terms depend on the applicable program and individual circumstances. All loans are subject to credit and underwriting approval. Website information is not a commitment to lend.</p>
+  </aside>
+
+</div>

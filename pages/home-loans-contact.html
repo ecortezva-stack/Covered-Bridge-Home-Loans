@@ -1,0 +1,489 @@
+<!-- ============================================================
+     COVERED BRIDGE HOME LOANS — CONTACT PAGE BODY
+     Route: /contact
+     SEO title: Contact | Covered Bridge Home Loans
+     Meta description: Buying, refinancing or simply exploring? Share your questions and start a conversation with Covered Bridge Home Loans.
+
+     Paste into one GHL Custom HTML/JavaScript element on this page,
+     between the shared header and footer global sections. Section:
+     full width, 0 padding, no background. Styles are scoped to .cbhl-contact.
+     ============================================================ -->
+<style>
+  .cbhl-contact {
+    --hl-bg: #0D0D0D;
+    --hl-surface: #121619;
+    --hl-surface-2: #171B1E;
+    --hl-gold: #D2A34C;
+    --hl-gold-hover: #EAC266;
+    --hl-text: #F2F0EB;
+    --hl-muted: #BFBAAB;
+    --hl-line: rgba(210, 163, 76, 0.2);
+    --hl-line-strong: rgba(210, 163, 76, 0.5);
+    --hl-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
+    --hl-sans: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+    --hl-gutter: clamp(20px, 4vw, 48px);
+
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    font-family: var(--hl-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: left;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  .cbhl-contact,
+  .cbhl-contact *,
+  .cbhl-contact *::before,
+  .cbhl-contact *::after {
+    box-sizing: border-box;
+  }
+  .cbhl-contact [hidden] {
+    display: none !important;
+  }
+
+  /* ---------- Layout ---------- */
+  .cbhl-contact .cbhl-contact__section {
+    position: relative;
+    margin: 0;
+    padding: clamp(64px, 8vw, 112px) var(--hl-gutter);
+    scroll-margin-top: 100px; /* clears the fixed header */
+  }
+  .cbhl-contact .cbhl-contact__section--surface {
+    background: var(--hl-surface);
+  }
+  .cbhl-contact .cbhl-contact__section + .cbhl-contact__section:not(.cbhl-contact__section--surface) {
+    border-top: 1px solid rgba(210, 163, 76, 0.12);
+  }
+  .cbhl-contact .cbhl-contact__inner {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .cbhl-contact .cbhl-contact__narrow {
+    max-width: 760px;
+  }
+  .cbhl-contact .cbhl-contact__header {
+    max-width: 720px;
+    margin: 0 0 clamp(36px, 5vw, 56px);
+  }
+
+  /* ---------- Type ---------- */
+  .cbhl-contact .cbhl-contact__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 18px;
+    padding: 0;
+    font-family: var(--hl-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--hl-gold);
+  }
+  .cbhl-contact .cbhl-contact__eyebrow svg {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 12px;
+  }
+  .cbhl-contact .cbhl-contact__h1 {
+    margin: 0 0 22px;
+    padding: 0;
+    font-family: var(--hl-serif);
+    font-size: clamp(2.5rem, 3.4vw + 1rem, 4.25rem);
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-contact .cbhl-contact__h2 {
+    margin: 0 0 16px;
+    padding: 0;
+    font-family: var(--hl-serif);
+    font-size: clamp(1.875rem, 1.7vw + 1.2rem, 2.75rem);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.005em;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-contact .cbhl-contact__h3 {
+    margin: 0 0 8px;
+    padding: 0;
+    font-family: var(--hl-sans);
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--hl-text);
+  }
+  .cbhl-contact .cbhl-contact__lede {
+    max-width: 38em;
+    margin: 0;
+    padding: 0;
+    font-size: clamp(1.0625rem, 0.35vw + 0.98rem, 1.1875rem);
+    line-height: 1.7;
+    color: rgba(242, 240, 235, 0.9);
+  }
+  .cbhl-contact .cbhl-contact__p {
+    margin: 0 0 16px;
+    padding: 0;
+    font-size: 1.0625rem;
+    line-height: 1.75;
+    color: var(--hl-muted);
+  }
+  .cbhl-contact .cbhl-contact__p:last-child {
+    margin-bottom: 0;
+  }
+  .cbhl-contact .cbhl-contact__p--sm {
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+  .cbhl-contact .cbhl-contact__p a,
+  .cbhl-contact .cbhl-contact__lede a {
+    color: var(--hl-gold-hover);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .cbhl-contact .cbhl-contact__p a:hover,
+  .cbhl-contact .cbhl-contact__lede a:hover {
+    color: var(--hl-text);
+  }
+
+  /* ---------- Buttons and links ---------- */
+  .cbhl-contact .cbhl-contact__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 16px;
+    margin: clamp(30px, 3.6vw, 38px) 0 0;
+  }
+  .cbhl-contact .cbhl-contact__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 54px;
+    margin: 0;
+    padding: 0 28px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-family: var(--hl-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .cbhl-contact .cbhl-contact__btn--gold {
+    background: var(--hl-gold);
+    color: #0D0D0D;
+  }
+  .cbhl-contact .cbhl-contact__btn--gold:hover {
+    background: var(--hl-gold-hover);
+    color: #0D0D0D;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px rgba(210, 163, 76, 0.25);
+  }
+  .cbhl-contact .cbhl-contact__btn--outline {
+    background: rgba(13, 13, 13, 0.35);
+    border-color: rgba(210, 163, 76, 0.65);
+    color: var(--hl-text);
+  }
+  .cbhl-contact .cbhl-contact__btn--outline:hover {
+    border-color: var(--hl-gold-hover);
+    color: var(--hl-gold-hover);
+  }
+  .cbhl-contact .cbhl-contact__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 3px;
+    border-bottom: 1px solid rgba(210, 163, 76, 0.45);
+    font-family: var(--hl-sans);
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hl-gold);
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .cbhl-contact .cbhl-contact__link svg {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    transition: transform 0.2s ease;
+  }
+  .cbhl-contact .cbhl-contact__link:hover {
+    color: var(--hl-gold-hover);
+    border-color: var(--hl-gold-hover);
+  }
+  .cbhl-contact .cbhl-contact__link:hover svg {
+    transform: translateX(3px);
+  }
+  .cbhl-contact a:focus-visible,
+  .cbhl-contact summary:focus-visible {
+    outline: 2px solid var(--hl-gold-hover);
+    outline-offset: 4px;
+    border-radius: 2px;
+  }
+
+  /* ---------- Closing call to action ---------- */
+  .cbhl-contact .cbhl-contact__cta {
+    text-align: center;
+    background:
+      radial-gradient(50% 80% at 50% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 70%),
+      var(--hl-surface);
+    border-top: 1px solid var(--hl-line);
+  }
+  .cbhl-contact .cbhl-contact__cta .cbhl-contact__inner {
+    max-width: 760px;
+  }
+  .cbhl-contact .cbhl-contact__cta .cbhl-contact__eyebrow,
+  .cbhl-contact .cbhl-contact__cta .cbhl-contact__actions {
+    justify-content: center;
+  }
+  .cbhl-contact .cbhl-contact__cta .cbhl-contact__lede {
+    margin: 0 auto;
+  }
+
+  /* ---------- Loan disclaimer ---------- */
+  .cbhl-contact .cbhl-contact__disclaimer {
+    margin: 0;
+    padding: 28px var(--hl-gutter) 32px;
+    background: var(--hl-bg);
+    border-top: 1px solid rgba(210, 163, 76, 0.14);
+  }
+  .cbhl-contact .cbhl-contact__disclaimer p {
+    max-width: 1180px;
+    margin: 0 auto;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    color: var(--hl-muted);
+  }
+
+  @media (max-width: 1180px) {
+    .cbhl-contact .cbhl-contact__section {
+      scroll-margin-top: 84px;
+    }
+  }
+  @media (max-width: 480px) {
+    .cbhl-contact .cbhl-contact__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .cbhl-contact .cbhl-contact__btn {
+      width: 100%;
+      padding: 0 20px;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cbhl-contact .cbhl-contact__btn,
+    .cbhl-contact .cbhl-contact__link,
+    .cbhl-contact .cbhl-contact__link svg {
+      transition: none;
+    }
+    .cbhl-contact .cbhl-contact__btn--gold:hover,
+    .cbhl-contact .cbhl-contact__link:hover svg {
+      transform: none;
+    }
+  }
+
+  .cbhl-contact .cbhl-contact__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Page hero ---------- */
+  .cbhl-contact .cbhl-contact__phero {
+    position: relative;
+    margin: 0;
+    padding: clamp(72px, 9vw, 128px) var(--hl-gutter) clamp(64px, 8vw, 104px);
+    background:
+      radial-gradient(55% 75% at 88% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 65%),
+      linear-gradient(180deg, #0D0D0D 0%, #101316 100%);
+    border-bottom: 1px solid var(--hl-line);
+  }
+  .cbhl-contact .cbhl-contact__phero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(40px, 6vw, 96px);
+    align-items: center;
+  }
+  .cbhl-contact .cbhl-contact__phero-copy {
+    max-width: 640px;
+  }
+  @media (max-width: 900px) {
+    .cbhl-contact .cbhl-contact__phero-grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* ---------- Inquiry area ---------- */
+  .cbhl-contact .cbhl-contact__contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(36px, 6vw, 88px);
+    align-items: flex-start;
+  }
+  .cbhl-contact .cbhl-contact__contact-copy {
+    flex: 1 1 340px;
+    max-width: 560px;
+  }
+  /* The GHL form goes inside .cbhl-contact__form. While it's empty the panel
+     collapses, so visitors never see an empty box. */
+  .cbhl-contact .cbhl-contact__form {
+    flex: 1.4 1 420px;
+    min-width: 0;
+    padding: clamp(20px, 3vw, 32px);
+    border: 1px solid var(--hl-line);
+    border-radius: 4px;
+    background: var(--hl-surface-2);
+  }
+  .cbhl-contact .cbhl-contact__form:empty {
+    display: none;
+  }
+  .cbhl-contact .cbhl-contact__form iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    border: 0;
+  }
+  .cbhl-contact .cbhl-contact__notices {
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cbhl-contact .cbhl-contact__notices > li {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    gap: 12px;
+    margin: 0;
+    padding: 14px 0;
+    border-top: 1px solid var(--hl-line);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--hl-muted);
+  }
+  .cbhl-contact .cbhl-contact__notices > li::marker {
+    content: none;
+  }
+  .cbhl-contact .cbhl-contact__notices svg {
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    color: var(--hl-gold);
+  }
+  .cbhl-contact .cbhl-contact__notices a {
+    color: var(--hl-gold-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .cbhl-contact .cbhl-contact__apply {
+    margin: 30px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid var(--hl-line);
+  }
+  .cbhl-contact .cbhl-contact__apply .cbhl-contact__actions {
+    margin-top: 16px;
+  }
+</style>
+
+<div class="cbhl-contact">
+
+  <section class="cbhl-contact__phero" aria-labelledby="cbhl-contact-title">
+    <div class="cbhl-contact__inner cbhl-contact__phero-grid">
+      <div class="cbhl-contact__phero-copy">
+        <p class="cbhl-contact__eyebrow"><svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1.5 11 10 2.5l8.5 8.5"/></svg><span>Contact</span></p>
+        <h1 class="cbhl-contact__h1" id="cbhl-contact-title">Let&rsquo;s talk about your home-loan plans.</h1>
+        <p class="cbhl-contact__lede">Buying, refinancing or simply exploring? Share a few initial details and your questions.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="cbhl-contact__section" aria-labelledby="cbhl-contact-inquiry">
+    <div class="cbhl-contact__inner cbhl-contact__contact">
+      <div class="cbhl-contact__contact-copy">
+        <p class="cbhl-contact__eyebrow"><svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M1.5 11 10 2.5l8.5 8.5"/></svg><span>Inquiry</span></p>
+        <h2 class="cbhl-contact__h2" id="cbhl-contact-inquiry">Start a Conversation</h2>
+        <p class="cbhl-contact__p">Tell us what you are planning so the team can help you understand the appropriate next step.</p>
+        <ul class="cbhl-contact__notices">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6L12 3z"/><path d="m9 12 2 2 4-4"/></svg><span>Please do not include sensitive financial or identification information. This form is for general inquiries and is not a mortgage application.</span></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg><span>See our <a href="/privacy-policy">Privacy Policy</a> for information about how inquiry details are handled.</span></li>
+        </ul>
+        <div class="cbhl-contact__apply" hidden data-hl-apply>
+          <h3 class="cbhl-contact__h3">Ready to apply?</h3>
+          <p class="cbhl-contact__p cbhl-contact__p--sm">If you&rsquo;re ready to begin a mortgage application, use the online application.</p>
+          <div class="cbhl-contact__actions">
+            <a class="cbhl-contact__btn cbhl-contact__btn--outline" data-hl-apply-link>Start Your Application</a>
+          </div>
+        </div>
+      </div>
+      <div class="cbhl-contact__form" aria-label="Inquiry form"><!--
+        >>> GHL FORM EMBED GOES HERE (integration dependency) <<<
+        Paste the native Covered Bridge Home Loans GHL form's embed code
+        between this comment and the closing </div>. While this box is
+        empty it is hidden, so visitors never see an empty panel.
+
+        Intended fields:
+          Full name (required) · Email (required) · Phone (optional)
+          What can we help with? (required): Buying a Home / Refinancing /
+            Exploring Loan Options / General Question
+          Property state, if known (optional) · Brief message (optional)
+        Do NOT collect: SSN, date of birth, credit score, income or account
+        details, identification files, tax returns or bank statements.
+        Add any required communication-consent wording in the GHL form
+        itself; no credit-check authorization, bundled marketing consent
+        or SMS enrollment.
+      --></div>
+    </div>
+  </section>
+
+  <aside class="cbhl-contact__disclaimer" aria-label="Loan disclaimer">
+    <p>Loan options, eligibility, down payments and terms depend on the applicable program and individual circumstances. All loans are subject to credit and underwriting approval. Website information is not a commitment to lend.</p>
+  </aside>
+
+</div>
+
+<script>
+  (function () {
+    /* ==========================================================
+       HOME_LOAN_APPLICATION_URL — the online mortgage application.
+       Not confirmed yet. While it's '', every application link on
+       this page stays hidden (no broken buttons). When the
+       destination is approved, paste its full https:// address
+       between the quotes (or set applicationUrl in
+       config/site.json and rebuild).
+       ========================================================== */
+    var HOME_LOAN_APPLICATION_URL = '';
+
+    var url = String(HOME_LOAN_APPLICATION_URL || '').trim();
+    if (!/^https:\/\/[^\s"'<>]+$/i.test(url)) return;
+    var root = document.querySelectorAll('.cbhl-contact [data-hl-apply]');
+    Array.prototype.forEach.call(root, function (el) {
+      var a = el.matches('a') ? el : el.querySelector('a[data-hl-apply-link]');
+      if (a) a.setAttribute('href', url);
+      el.hidden = false;
+    });
+  })();
+</script>

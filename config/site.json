@@ -1,0 +1,14 @@
+{
+  "_note": "Settings for scripts/build.py. Run the build after changing anything here.",
+
+  "applicationUrl": "",
+  "_applicationUrl": "HOME_LOAN_APPLICATION_URL. The online mortgage application link, once it is confirmed (full https:// address). Empty: every application button stays hidden on the site.",
+
+  "images": {
+    "logo": "",
+    "heroHouse": "",
+    "houseKeys": "",
+    "consultation": ""
+  },
+  "_images": "Optional GHL Media links for assets/web/ (cbb-logo.webp, hero-house-sunset.webp, house-and-keys.webp, consultation.webp). Empty: the image is embedded in the block so it shows as soon as it's pasted. A link makes the block much smaller."
+}
