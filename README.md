@@ -6,19 +6,25 @@ The standalone website for Covered Bridge Home Loans, built for the Covered Brid
 
 ## Files and routes
 
-| Page | Route | Paste this file | Images |
+| Page | Route | Paste this file | Photos |
 |---|---|---|---|
-| Home | `/` | `pages/home-loans-home.html` | House at sunset (hero) |
-| Loan Options | `/loan-options` | `pages/home-loans-loan-options.html` | House and keys |
-| How It Works | `/how-it-works` | `pages/home-loans-how-it-works.html` | Consultation |
-| Homebuyer Resources | `/homebuyer-resources` | `pages/home-loans-resources.html` | House and keys |
+| Home | `/` | `pages/home-loans-home.html` | House at sunset (hero), couple planning + advisor (intro), family moving + advisor (process) |
+| Loan Options | `/loan-options` | `pages/home-loans-loan-options.html` | Wooden house and keys |
+| How It Works | `/how-it-works` | `pages/home-loans-how-it-works.html` | Advisor |
+| Homebuyer Resources | `/homebuyer-resources` | `pages/home-loans-resources.html` | Wooden house and keys |
 | FAQs | `/faqs` | `pages/home-loans-faqs.html` | none |
-| About | `/about` | `pages/home-loans-about.html` | Consultation |
-| Contact | `/contact` | `pages/home-loans-contact.html` | none |
+| About | `/about` | `pages/home-loans-about.html` | Couple planning + consultation |
+| Contact | `/contact` | `pages/home-loans-contact.html` | Consultation |
 | Privacy Policy (draft) | `/privacy-policy` | `pages/home-loans-privacy-policy-draft.html` | none |
 | Terms of Use (draft) | `/terms` | `pages/home-loans-terms-draft.html` | none |
 | Shared header | every page | `sections/home-loans-header.html` | CBB logo |
-| Shared footer | every page | `sections/home-loans-footer.html` | none |
+| Shared footer | every page | `sections/home-loans-footer.html` | CBB logo |
+
+## Design
+
+The layout follows David's "Mortgage Lender" GHL template: a slim dark header, a full-width photo hero with a dark question panel overlapping its bottom edge, light content sections with overlapping portrait photos, a full-width dark benefits band with three gold icon circles, a three-column card grid, an image-left numbered process, an FAQ accordion with gold-bordered rows, and a multi-column dark footer. Template colors are translated to CBB's: navy becomes charcoal/near-black, red becomes gold (with dark text on gold buttons), and light gray becomes warm off-white. The template's testimonials, statistics bars, sample services, phone number and "Apply Now" button are not used.
+
+The previous all-dark version of the site is kept on the git branch `archive/v1-dark-design`.
 
 Every file is a GHL-ready fragment: no `<html>`, `<head>` or `<body>`, styles scoped to the block's own root class (`.cbhl-header`, `.cbhl-footer`, `.cbhl-home`, `.cbhl-loans`, `.cbhl-how`, `.cbhl-res`, `.cbhl-faq`, `.cbhl-about`, `.cbhl-contact`, `.cbhl-privacy`, `.cbhl-terms`). Internal links are root-relative (`/contact`), so they work on whatever domain the site gets.
 
@@ -32,7 +38,7 @@ Every file is a GHL-ready fragment: no `<html>`, `<head>` or `<body>`, styles sc
 4. **Fonts.** Choose Playfair Display and Inter in the site's typography settings. Without them the blocks fall back to Georgia and the system sans-serif.
 5. **Contact form.** When the native form exists, paste its embed code inside the `__form` box on the Contact page (marked `GHL FORM EMBED GOES HERE`). The box is hidden while it's empty.
 
-Images are embedded in the blocks, so they show as soon as they're pasted. To make the blocks smaller, upload `assets/web/*.webp` to the sub-account's Media library, put the links in `config/site.json` under `images`, and run the build.
+Images are embedded in the blocks, so they show as soon as they're pasted. That makes the Home block about 330 KB. If GHL is slow to save it, upload `assets/web/*.webp` to the Home Loans sub-account's Media library, put each link in `config/site.json` under `images`, and run the build; the blocks then shrink to a few dozen KB.
 
 ## SEO
 
@@ -50,7 +56,7 @@ Images are embedded in the blocks, so they show as soon as they're pasted. To ma
 
 ## Application link
 
-`HOME_LOAN_APPLICATION_URL` controls the online application buttons (Contact page and How It Works step 2). It is empty because the destination isn't confirmed, so those buttons are hidden and no broken link appears. To turn them on, set `applicationUrl` in `config/site.json` to the full `https://` address and run the build (or edit the value at the bottom of those two page blocks).
+`HOME_LOAN_APPLICATION_URL` controls the online application buttons (Contact page and How It Works stage 2). It is empty because the destination isn't confirmed, so those buttons are hidden and no broken link appears. To turn them on, set `applicationUrl` in `config/site.json` to the full `https://` address and run the build (or edit the value at the bottom of those two page blocks).
 
 ## Before publishing
 
@@ -63,14 +69,19 @@ Images are embedded in the blocks, so they show as soon as they're pasted. To ma
 
 ## Images
 
-| File | Source (kept unchanged in `assets/originals/`) | Used on |
-|---|---|---|
-| `assets/web/hero-house-sunset.webp` (1600 × 900) | `house-at-sunset.webp` | Home hero: copy over the dark left side on desktop; on tablet and phone the photo becomes a band above the copy, cropped to keep the house |
-| `assets/web/house-and-keys.webp` (1200 × 800) | `wooden-house-and-keys.webp` | Loan Options hero, Homebuyer Resources |
-| `assets/web/consultation.webp` (1200 × 800) | `consultation.webp` | How It Works hero, About hero |
-| `assets/web/cbb-logo.webp` (480 × 100) | `cbb-logo.png` (Covered Bridge Brands logo) | Header |
+Originals are kept unchanged in `assets/originals/`; `assets/web/` holds the optimized copies the build uses.
 
-The photos are illustrative; the copy doesn't identify the people as staff or customers or the house as a financed property.
+| Web copy (`assets/web/`) | Size | Subject | Used on |
+|---|---|---|---|
+| `home-loans-hero.webp` | 1600 × 900 | House at sunset | Home hero (copy over the dark left side; on phones the photo becomes a band above the copy) |
+| `home-loans-resources.webp` | 1100 × 733 | Wooden house, keys and notebook | Loan Options, Homebuyer Resources |
+| `home-loans-consultation.webp` | 1100 × 733 | Adviser with a couple across a desk | About, Contact |
+| `home-loans-couple-planning.webp` | 600 × 750 | Couple reviewing a tablet | Home intro, About |
+| `home-loans-advisor.webp` | 600 × 750 | Professional reviewing a folder | Home intro and process, How It Works |
+| `home-loans-family-moving.webp` | 600 × 750 | Family with a moving box | Home process |
+| `cbb-logo.webp` | 480 × 100 | Covered Bridge Brands logo | Header, footer |
+
+The photos are illustrations; no names, titles, testimonials or results are attached to them.
 
 ## Editing
 

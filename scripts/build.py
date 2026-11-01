@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 """Build the Covered Bridge Home Loans website blocks.
 
+Design: David's "Mortgage Lender" GHL template layout (light content
+sections with dark feature bands), in Covered Bridge Brands colors, logo
+and type. The previous all-dark design is kept on the git branch
+archive/v1-dark-design.
+
 Writes GHL-ready fragments (no <html>/<head>/<body>):
   sections/home-loans-header.html   shared header  (root .cbhl-header)
   sections/home-loans-footer.html   shared footer  (root .cbhl-footer)
@@ -29,48 +34,63 @@ assert APPLICATION_URL == "" or (APPLICATION_URL.startswith("https://") and "'" 
 # ---------------------------------------------------------------------------
 # Images: a GHL Media link from config/site.json, else embedded from assets/web
 # ---------------------------------------------------------------------------
-IMAGE_FILES = {
-    "logo": "cbb-logo.webp",
-    "heroHouse": "hero-house-sunset.webp",
-    "houseKeys": "house-and-keys.webp",
-    "consultation": "consultation.webp",
+IMAGES = {
+    # key: (file in assets/web, width, height, alt text)
+    "logo": ("cbb-logo.webp", 480, 100, ""),
+    "hero": ("home-loans-hero.webp", 1600, 900,
+             "A two-story home with warm light glowing in its windows at sunset."),
+    "resources": ("home-loans-resources.webp", 1100, 733,
+                  "A small wooden model house beside a set of house keys, a notebook and a pen on a wooden table."),
+    "consultation": ("home-loans-consultation.webp", 1100, 733,
+                     "Two people talking with an advisor across a table as she reviews paperwork with them."),
+    "couplePlanning": ("home-loans-couple-planning.webp", 600, 750,
+                       "A couple sitting on a sofa, looking at a tablet together."),
+    "advisor": ("home-loans-advisor.webp", 600, 750,
+                "A man in a blazer reviewing papers in a folder at a desk."),
+    "familyMoving": ("home-loans-family-moving.webp", 600, 750,
+                     "Two parents and a young child unpacking a moving box in a bright, empty room."),
 }
 
 
-def img(key):
+def img_src(key):
     url = (CONFIG.get("images") or {}).get(key, "").strip()
     if url:
         assert url.startswith("https://") and '"' not in url, url
         return url
-    data = (ROOT / "assets/web" / IMAGE_FILES[key]).read_bytes()
+    data = (ROOT / "assets/web" / IMAGES[key][0]).read_bytes()
     return "data:image/webp;base64," + base64.b64encode(data).decode()
 
 
-ALT = {
-    "heroHouse": "A two-story home with warm light glowing in its windows at sunset.",
-    "houseKeys": "A small wooden model house beside a set of house keys, a notebook and a pen on a wooden table.",
-    "consultation": "Two people talking with an advisor across a table as she reviews paperwork with them.",
-}
+def img(key, cls="", eager=False):
+    _, w, h, alt = IMAGES[key]
+    loading = 'fetchpriority="high"' if eager else 'loading="lazy"'
+    c = f' class="{cls}"' if cls else ""
+    return f'<img{c} src="%IMG:{key}%" alt="{alt}" width="{w}" height="{h}" {loading} decoding="async">'
 
+
+CTA_LABEL = "Talk About Your Home Loan"
 DISCLAIMER = ("Loan options, eligibility, down payments and terms depend on the applicable program and "
               "individual circumstances. All loans are subject to credit and underwriting approval. "
               "Website information is not a commitment to lend.")
 
-CTA_LABEL = "Talk About Your Home Loan"
-
 # ---------------------------------------------------------------------------
-# Shared tokens. %R is replaced by each block's root class.
+# Design tokens. %R is replaced by each block's root class.
 # ---------------------------------------------------------------------------
 TOKENS = """
-    --hl-bg: #0D0D0D;
-    --hl-surface: #121619;
-    --hl-surface-2: #171B1E;
+    --hl-black: #0D0D0D;
+    --hl-charcoal: #121619;
     --hl-gold: #D2A34C;
     --hl-gold-hover: #EAC266;
-    --hl-text: #F2F0EB;
-    --hl-muted: #BFBAAB;
-    --hl-line: rgba(210, 163, 76, 0.2);
-    --hl-line-strong: rgba(210, 163, 76, 0.5);
+    --hl-gold-text: #87631A;          /* gold for small text on light backgrounds */
+    --hl-warm: #F2F0EB;               /* text on dark */
+    --hl-warm-muted: #C9C4B6;         /* secondary text on dark */
+    --hl-light: #FAF8F4;              /* light content background */
+    --hl-band: #F1EDE5;               /* slightly deeper light band */
+    --hl-white: #FFFFFF;
+    --hl-ink: #242424;                /* body text on light */
+    --hl-ink-muted: #57534B;          /* secondary text on light */
+    --hl-line: #E4DCCD;               /* borders on light */
+    --hl-line-dark: rgba(210, 163, 76, 0.22);
     --hl-serif: 'Playfair Display', Georgia, 'Times New Roman', serif;
     --hl-sans: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
     --hl-gutter: clamp(20px, 4vw, 48px);
@@ -84,11 +104,11 @@ CSS["base"] = """
     width: 100%;
     margin: 0;
     padding: 0;
-    background: var(--hl-bg);
-    color: var(--hl-text);
+    background: var(--hl-light);
+    color: var(--hl-ink);
     font-family: var(--hl-sans);
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: 17px;
+    line-height: 1.7;
     text-align: left;
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
@@ -99,141 +119,155 @@ CSS["base"] = """
   .%R *::after {
     box-sizing: border-box;
   }
-  .%R [hidden] {
-    display: none !important;
-  }
+  .%R [hidden] { display: none !important; }
+  .%R img { max-width: 100%; }
 
-  /* ---------- Layout ---------- */
-  .%R .%R__section {
+  /* ---------- Sections ---------- */
+  .%R .%R__s {
     position: relative;
     margin: 0;
     padding: clamp(64px, 8vw, 112px) var(--hl-gutter);
-    scroll-margin-top: 100px; /* clears the fixed header */
+    background: var(--hl-light);
+    scroll-margin-top: 92px; /* clears the fixed header */
   }
-  .%R .%R__section--surface {
-    background: var(--hl-surface);
+  .%R .%R__s--white { background: var(--hl-white); }
+  .%R .%R__s--band { background: var(--hl-band); }
+  .%R .%R__s--dark {
+    background: var(--hl-charcoal);
+    color: var(--hl-warm);
+    overflow: hidden;
   }
-  .%R .%R__section + .%R__section:not(.%R__section--surface) {
-    border-top: 1px solid rgba(210, 163, 76, 0.12);
+  .%R .%R__s--tight {
+    padding-top: clamp(48px, 6vw, 72px);
+    padding-bottom: clamp(48px, 6vw, 72px);
   }
-  .%R .%R__inner {
+  .%R .%R__in {
+    position: relative;
+    z-index: 1;
     width: 100%;
     max-width: 1180px;
     margin: 0 auto;
   }
-  .%R .%R__narrow {
-    max-width: 760px;
-  }
-  .%R .%R__header {
+  .%R .%R__narrow { max-width: 760px; }
+  .%R .%R__center { text-align: center; }
+  .%R .%R__center .%R__eyebrow { justify-content: center; }
+  .%R .%R__center .%R__lede,
+  .%R .%R__center .%R__h1 { margin-left: auto; margin-right: auto; }
+  .%R .%R__head {
     max-width: 720px;
     margin: 0 0 clamp(36px, 5vw, 56px);
   }
+  .%R .%R__head.%R__center { margin-left: auto; margin-right: auto; }
 
   /* ---------- Type ---------- */
   .%R .%R__eyebrow {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 0 0 18px;
+    margin: 0 0 14px;
     padding: 0;
     font-family: var(--hl-sans);
     font-size: 0.8125rem;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.5;
-    letter-spacing: 0.24em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: var(--hl-gold);
+    color: var(--hl-gold-text);
   }
   .%R .%R__eyebrow svg {
     flex: 0 0 auto;
     width: 20px;
     height: 12px;
   }
+  .%R .%R__s--dark .%R__eyebrow { color: var(--hl-gold); }
   .%R .%R__h1 {
-    margin: 0 0 22px;
+    margin: 0 0 20px;
     padding: 0;
     font-family: var(--hl-serif);
-    font-size: clamp(2.5rem, 3.4vw + 1rem, 4.25rem);
+    font-size: clamp(2.375rem, 2.8vw + 1.1rem, 3.75rem);
     font-weight: 600;
-    line-height: 1.08;
+    line-height: 1.1;
     letter-spacing: -0.01em;
     text-transform: none;
-    color: var(--hl-text);
+    color: var(--hl-ink);
   }
   .%R .%R__h2 {
     margin: 0 0 16px;
     padding: 0;
     font-family: var(--hl-serif);
-    font-size: clamp(1.875rem, 1.7vw + 1.2rem, 2.75rem);
+    font-size: clamp(1.875rem, 1.6vw + 1.2rem, 2.625rem);
     font-weight: 600;
-    line-height: 1.15;
+    line-height: 1.18;
     letter-spacing: -0.005em;
     text-transform: none;
-    color: var(--hl-text);
+    color: var(--hl-ink);
   }
   .%R .%R__h3 {
     margin: 0 0 8px;
     padding: 0;
     font-family: var(--hl-sans);
-    font-size: 1.125rem;
+    font-size: 1.1875rem;
     font-weight: 600;
-    line-height: 1.4;
+    line-height: 1.35;
     letter-spacing: 0;
     text-transform: none;
-    color: var(--hl-text);
+    color: var(--hl-ink);
   }
+  .%R .%R__s--dark .%R__h1,
+  .%R .%R__s--dark .%R__h2,
+  .%R .%R__s--dark .%R__h3 { color: var(--hl-warm); }
+  .%R .%R__gold { color: var(--hl-gold); }
   .%R .%R__lede {
     max-width: 38em;
     margin: 0;
     padding: 0;
-    font-size: clamp(1.0625rem, 0.35vw + 0.98rem, 1.1875rem);
+    font-size: clamp(1.0625rem, 0.3vw + 1rem, 1.1875rem);
     line-height: 1.7;
-    color: rgba(242, 240, 235, 0.9);
+    color: var(--hl-ink-muted);
   }
   .%R .%R__p {
     margin: 0 0 16px;
     padding: 0;
     font-size: 1.0625rem;
     line-height: 1.75;
-    color: var(--hl-muted);
+    color: var(--hl-ink-muted);
   }
-  .%R .%R__p:last-child {
-    margin-bottom: 0;
-  }
-  .%R .%R__p--sm {
-    font-size: 1rem;
-    line-height: 1.7;
-  }
+  .%R .%R__p:last-child { margin-bottom: 0; }
+  .%R .%R__p--sm { font-size: 1rem; line-height: 1.7; }
+  .%R .%R__s--dark .%R__lede,
+  .%R .%R__s--dark .%R__p { color: var(--hl-warm-muted); }
   .%R .%R__p a,
   .%R .%R__lede a {
-    color: var(--hl-gold-hover);
+    color: var(--hl-gold-text);
+    font-weight: 600;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
-  .%R .%R__p a:hover,
-  .%R .%R__lede a:hover {
-    color: var(--hl-text);
-  }
+  .%R .%R__s--dark .%R__p a { color: var(--hl-gold-hover); }
 
   /* ---------- Buttons and links ---------- */
   .%R .%R__actions {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 14px 16px;
-    margin: clamp(30px, 3.6vw, 38px) 0 0;
+    gap: 16px 28px;
+    margin: clamp(28px, 3.4vw, 36px) 0 0;
   }
+  .%R .%R__center .%R__actions,
+  .%R .%R__actions.%R__center { justify-content: center; }
   .%R .%R__btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    min-height: 54px;
+    min-height: 52px;
     margin: 0;
     padding: 0 28px;
-    border: 1px solid transparent;
-    border-radius: 3px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--hl-gold);
+    color: #0D0D0D;
     font-family: var(--hl-sans);
     font-size: 1rem;
     font-weight: 600;
@@ -243,40 +277,37 @@ CSS["base"] = """
     text-decoration: none;
     text-transform: none;
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   }
-  .%R .%R__btn--gold {
-    background: var(--hl-gold);
-    color: #0D0D0D;
+  .%R .%R__btn svg {
+    width: 17px;
+    height: 17px;
+    flex: 0 0 17px;
   }
-  .%R .%R__btn--gold:hover {
+  .%R .%R__btn:hover {
     background: var(--hl-gold-hover);
     color: #0D0D0D;
     transform: translateY(-1px);
-    box-shadow: 0 10px 28px rgba(210, 163, 76, 0.25);
+    box-shadow: 0 10px 26px rgba(210, 163, 76, 0.3);
   }
-  .%R .%R__btn--outline {
-    background: rgba(13, 13, 13, 0.35);
-    border-color: rgba(210, 163, 76, 0.65);
-    color: var(--hl-text);
-  }
-  .%R .%R__btn--outline:hover {
-    border-color: var(--hl-gold-hover);
-    color: var(--hl-gold-hover);
+  .%R .%R__btn--sm {
+    min-height: 44px;
+    padding: 0 22px;
+    font-size: 0.9375rem;
   }
   .%R .%R__link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 0 0 3px;
-    border-bottom: 1px solid rgba(210, 163, 76, 0.45);
+    border-bottom: 1px solid currentColor;
     font-family: var(--hl-sans);
     font-size: 1rem;
     font-weight: 600;
     line-height: 1.4;
-    color: var(--hl-gold);
+    color: var(--hl-gold-text);
     text-decoration: none;
-    transition: color 0.2s ease, border-color 0.2s ease;
+    transition: color 0.2s ease;
   }
   .%R .%R__link svg {
     width: 16px;
@@ -284,92 +315,74 @@ CSS["base"] = """
     flex: 0 0 16px;
     transition: transform 0.2s ease;
   }
-  .%R .%R__link:hover {
-    color: var(--hl-gold-hover);
-    border-color: var(--hl-gold-hover);
-  }
-  .%R .%R__link:hover svg {
-    transform: translateX(3px);
-  }
+  .%R .%R__link:hover { color: var(--hl-ink); }
+  .%R .%R__link:hover svg { transform: translateX(3px); }
+  .%R .%R__s--dark .%R__link { color: var(--hl-gold); }
+  .%R .%R__s--dark .%R__link:hover { color: var(--hl-gold-hover); }
   .%R a:focus-visible,
   .%R summary:focus-visible {
-    outline: 2px solid var(--hl-gold-hover);
+    outline: 2px solid var(--hl-gold);
     outline-offset: 4px;
-    border-radius: 2px;
+    border-radius: 4px;
+  }
+  .%R .%R__s--dark a:focus-visible { outline-color: var(--hl-gold-hover); }
+  .%R .%R__sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
-  /* ---------- Closing call to action ---------- */
-  .%R .%R__cta {
-    text-align: center;
-    background:
-      radial-gradient(50% 80% at 50% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 70%),
-      var(--hl-surface);
-    border-top: 1px solid var(--hl-line);
+  /* ---------- Decorative gold linework (dark bands) ---------- */
+  .%R .%R__lines {
+    position: absolute;
+    z-index: 0;
+    width: clamp(260px, 34vw, 520px);
+    height: auto;
+    color: var(--hl-gold);
+    opacity: 0.22;
+    pointer-events: none;
   }
-  .%R .%R__cta .%R__inner {
-    max-width: 760px;
-  }
-  .%R .%R__cta .%R__eyebrow,
-  .%R .%R__cta .%R__actions {
-    justify-content: center;
-  }
-  .%R .%R__cta .%R__lede {
-    margin: 0 auto;
-  }
+  .%R .%R__lines--br { right: -40px; bottom: -40px; }
+  .%R .%R__lines--bl { left: -60px; bottom: -60px; transform: scaleX(-1); }
 
-  /* ---------- Loan disclaimer ---------- */
-  .%R .%R__disclaimer {
-    margin: 0;
-    padding: 28px var(--hl-gutter) 32px;
-    background: var(--hl-bg);
-    border-top: 1px solid rgba(210, 163, 76, 0.14);
-  }
-  .%R .%R__disclaimer p {
-    max-width: 1180px;
-    margin: 0 auto;
-    font-size: 0.875rem;
-    line-height: 1.65;
-    color: var(--hl-muted);
-  }
+  /* ---------- Dark call-to-action band ---------- */
+  .%R .%R__cta { text-align: center; }
+  .%R .%R__cta .%R__in { max-width: 760px; }
+  .%R .%R__cta .%R__actions { justify-content: center; }
+  .%R .%R__cta .%R__lede { margin: 0 auto; }
 
-  @media (max-width: 1180px) {
-    .%R .%R__section {
-      scroll-margin-top: 84px;
-    }
+  @media (max-width: 1240px) {
+    .%R .%R__s { scroll-margin-top: 80px; }
   }
   @media (max-width: 480px) {
-    .%R .%R__actions {
-      flex-direction: column;
-      align-items: stretch;
-    }
-    .%R .%R__btn {
-      width: 100%;
-      padding: 0 20px;
-    }
+    .%R .%R__actions .%R__btn { width: 100%; }
   }
   @media (prefers-reduced-motion: reduce) {
     .%R .%R__btn,
     .%R .%R__link,
-    .%R .%R__link svg {
-      transition: none;
-    }
-    .%R .%R__btn--gold:hover,
-    .%R .%R__link:hover svg {
-      transform: none;
-    }
+    .%R .%R__link svg { transition: none; }
+    .%R .%R__btn:hover,
+    .%R .%R__link:hover svg { transform: none; }
   }
 """
 
 CSS["hero"] = """
-  /* ---------- Home hero: photo with the copy over its darker left side ---------- */
+  /* ---------- Home hero (photo, copy over the darker left side) ---------- */
   .%R .%R__hero {
     position: relative;
     display: flex;
     align-items: center;
-    min-height: clamp(580px, 84vh, 780px);
+    min-height: clamp(600px, 88vh, 800px);
     margin: 0;
-    padding: clamp(96px, 10vw, 140px) var(--hl-gutter);
-    background: var(--hl-bg);
+    padding: clamp(80px, 9vw, 120px) var(--hl-gutter) clamp(150px, 15vw, 210px);
+    background: var(--hl-black);
+    color: var(--hl-warm);
     overflow: hidden;
   }
   .%R .%R__hero-img {
@@ -377,100 +390,550 @@ CSS["hero"] = """
     inset: 0;
     display: block;
     width: 100%;
+    max-width: none;
     height: 100%;
     object-fit: cover;
-    object-position: 68% 50%;
+    object-position: 66% 50%;
   }
   .%R .%R__hero-shade {
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(13, 13, 13, 0.92) 0%, rgba(13, 13, 13, 0.8) 30%, rgba(13, 13, 13, 0.35) 55%, rgba(13, 13, 13, 0) 72%),
-      linear-gradient(180deg, rgba(13, 13, 13, 0) 70%, rgba(13, 13, 13, 0.85) 100%);
+      linear-gradient(90deg, rgba(13, 13, 13, 0.9) 0%, rgba(13, 13, 13, 0.74) 32%, rgba(13, 13, 13, 0.28) 58%, rgba(13, 13, 13, 0) 76%),
+      linear-gradient(180deg, rgba(13, 13, 13, 0.35) 0%, rgba(13, 13, 13, 0) 22%);
   }
-  .%R .%R__hero .%R__inner {
-    position: relative;
-    z-index: 1;
-  }
-  .%R .%R__hero-copy {
-    max-width: 580px;
-  }
+  .%R .%R__hero-copy { max-width: 600px; }
   .%R .%R__hero .%R__h1 {
-    font-size: clamp(2.75rem, 4vw + 1rem, 4.75rem);
+    font-size: clamp(2.75rem, 3.8vw + 1rem, 4.5rem);
+    color: var(--hl-warm);
     text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
   }
-  /* Tablet and phone: the photo becomes a band above the copy so the
-     house and the text both stay readable. */
+  .%R .%R__hero .%R__lede { color: rgba(242, 240, 235, 0.92); }
+  .%R .%R__hero .%R__eyebrow { color: var(--hl-gold); }
+  .%R .%R__hero .%R__link { color: var(--hl-warm); }
+  .%R .%R__hero .%R__link:hover { color: var(--hl-gold-hover); }
+  .%R .%R__hero a:focus-visible { outline-color: var(--hl-gold-hover); }
+  /* Tablet and phone: the photo becomes a band above the copy. */
   @media (max-width: 900px) {
     .%R .%R__hero {
       display: block;
       min-height: 0;
-      padding: 0 0 clamp(56px, 9vw, 80px);
+      padding: 0 0 clamp(96px, 16vw, 128px);
     }
     .%R .%R__hero-img {
       position: relative;
       inset: auto;
-      height: clamp(260px, 62vw, 480px);
+      height: clamp(260px, 60vw, 460px);
       object-position: 74% 45%;
     }
     .%R .%R__hero-shade {
       inset: 0 0 auto 0;
-      height: clamp(260px, 62vw, 480px);
+      height: clamp(260px, 60vw, 460px);
       background: linear-gradient(180deg, rgba(13, 13, 13, 0) 50%, rgba(13, 13, 13, 0.6) 80%, #0D0D0D 100%);
     }
-    .%R .%R__hero .%R__inner {
-      margin-top: clamp(-56px, -6vw, -28px);
+    .%R .%R__hero .%R__in {
+      margin-top: clamp(-52px, -6vw, -24px);
       padding: 0 var(--hl-gutter);
     }
-    .%R .%R__hero .%R__h1 {
-      text-shadow: none;
+    .%R .%R__hero .%R__h1 { text-shadow: none; }
+  }
+
+  /* ---------- Overlapping question panel (stays in normal flow) ---------- */
+  .%R .%R__panel-band {
+    position: relative;
+    z-index: 2;
+    margin: 0;
+    padding: 0 var(--hl-gutter) clamp(48px, 6vw, 72px);
+    background: var(--hl-band);
+  }
+  .%R .%R__panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    max-width: 1000px;
+    margin: calc(-1 * clamp(80px, 9vw, 120px)) auto 0;
+    padding: clamp(28px, 4vw, 44px) 0;
+    border-radius: 18px;
+    background: var(--hl-charcoal);
+    box-shadow: 0 24px 60px rgba(13, 13, 13, 0.28);
+    color: var(--hl-warm);
+  }
+  .%R .%R__panel-col { padding: 0 clamp(24px, 4vw, 52px); }
+  .%R .%R__panel-col + .%R__panel-col { border-left: 1px solid var(--hl-line-dark); }
+  .%R .%R__panel .%R__h2 {
+    margin-bottom: 8px;
+    font-size: clamp(1.375rem, 0.8vw + 1.1rem, 1.75rem);
+    color: var(--hl-warm);
+  }
+  .%R .%R__panel .%R__p { margin-bottom: 18px; color: var(--hl-warm-muted); }
+  .%R .%R__panel .%R__link { color: var(--hl-gold); }
+  .%R .%R__panel .%R__link:hover { color: var(--hl-gold-hover); }
+  .%R .%R__panel a:focus-visible { outline-color: var(--hl-gold-hover); }
+  @media (max-width: 760px) {
+    .%R .%R__panel {
+      grid-template-columns: minmax(0, 1fr);
+      margin-top: calc(-1 * clamp(64px, 14vw, 88px));
+      padding: 0;
+    }
+    .%R .%R__panel-col { padding: 28px 24px; }
+    .%R .%R__panel-col + .%R__panel-col {
+      border-left: 0;
+      border-top: 1px solid var(--hl-line-dark);
     }
   }
 """
 
-CSS["phero"] = """
-  /* ---------- Page hero ---------- */
-  .%R .%R__phero {
-    position: relative;
-    margin: 0;
-    padding: clamp(72px, 9vw, 128px) var(--hl-gutter) clamp(64px, 8vw, 104px);
-    background:
-      radial-gradient(55% 75% at 88% 0%, rgba(210, 163, 76, 0.12), rgba(210, 163, 76, 0) 65%),
-      linear-gradient(180deg, #0D0D0D 0%, #101316 100%);
-    border-bottom: 1px solid var(--hl-line);
-  }
-  .%R .%R__phero-grid {
+CSS["comp"] = """
+  /* ---------- Copy beside an overlapping photo composition ---------- */
+  .%R .%R__split {
     display: grid;
-    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
     gap: clamp(40px, 6vw, 96px);
     align-items: center;
   }
-  .%R .%R__phero-copy {
-    max-width: 640px;
+  .%R .%R__comp {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1 / 1.05;
+    margin: 0 auto;
+  }
+  .%R .%R__comp img {
+    position: absolute;
+    display: block;
+    height: auto;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--hl-band);
+  }
+  .%R .%R__comp-a {
+    left: 0;
+    top: 8%;
+    width: 58%;
+    box-shadow: 0 18px 40px rgba(13, 13, 13, 0.14);
+  }
+  .%R .%R__comp-b {
+    right: 0;
+    bottom: 0;
+    width: 54%;
+    border: 6px solid var(--hl-white);
+    box-shadow: 0 18px 40px rgba(13, 13, 13, 0.18);
+  }
+  .%R .%R__comp--process .%R__comp-a { top: 0; width: 60%; }
+  .%R .%R__comp--process .%R__comp-b { width: 50%; bottom: 2%; }
+  .%R .%R__comp--landscape .%R__comp-b {
+    width: 64%;
+    bottom: 4%;
+    aspect-ratio: 4 / 3;
+    border-color: var(--hl-band);
+  }
+  .%R .%R__comp-badge {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 42%;
+    width: 32%;
+    margin: 0;
+    padding: 14px 14px 16px;
+    border-radius: 6px;
+    background: var(--hl-gold);
+    color: #0D0D0D;
+    font-family: var(--hl-sans);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.4;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    box-shadow: 0 12px 28px rgba(13, 13, 13, 0.18);
   }
   @media (max-width: 900px) {
-    .%R .%R__phero-grid {
-      grid-template-columns: minmax(0, 1fr);
+    .%R .%R__split { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Phones: the overlap becomes two side-by-side photos. */
+  @media (max-width: 560px) {
+    .%R .%R__comp {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      max-width: none;
+      aspect-ratio: auto;
+    }
+    .%R .%R__comp img,
+    .%R .%R__comp--process .%R__comp-a,
+    .%R .%R__comp--process .%R__comp-b,
+    .%R .%R__comp--landscape .%R__comp-b {
+      position: static;
+      width: 100%;
+      aspect-ratio: 4 / 5;
+      border: 0;
+    }
+    .%R .%R__comp-b { margin-top: 32px; }
+    .%R .%R__comp-badge {
+      position: static;
+      order: -1;
+      grid-column: 1 / -1;
+      width: auto;
+      text-align: center;
     }
   }
 """
 
-CSS["figure"] = """
-  /* ---------- Framed photo ---------- */
-  .%R .%R__figure {
-    position: relative;
-    margin: 0 14px 14px 0;
+CSS["benefits"] = """
+  /* ---------- Dark band: icon circles, divider, two columns ---------- */
+  .%R .%R__icons {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 900px;
+    margin: clamp(32px, 4vw, 48px) auto 0;
     padding: 0;
+    list-style: none;
   }
-  .%R .%R__figure::before {
+  .%R .%R__icons li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin: 0;
+    text-align: center;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--hl-warm);
+  }
+  .%R .%R__icons li::marker { content: none; }
+  .%R .%R__icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--hl-gold);
+    color: #0D0D0D;
+  }
+  .%R .%R__icon svg { width: 34px; height: 34px; }
+  .%R .%R__divider {
+    max-width: 900px;
+    height: 1px;
+    margin: clamp(40px, 5vw, 56px) auto;
+    border: 0;
+    background: rgba(242, 240, 235, 0.25);
+  }
+  .%R .%R__benefit-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(36px, 6vw, 88px);
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  .%R .%R__checks {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .%R .%R__checks > li {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 14px;
+    margin: 0 0 22px;
+  }
+  .%R .%R__checks > li:last-child { margin-bottom: 0; }
+  .%R .%R__checks > li::marker { content: none; }
+  .%R .%R__checks svg {
+    width: 24px;
+    height: 24px;
+    margin-top: 2px;
+    color: var(--hl-gold);
+  }
+  .%R .%R__checks .%R__h3 { margin-bottom: 4px; font-size: 1.125rem; }
+  .%R .%R__value-title {
+    display: block;
+    margin: 0 0 6px;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--hl-warm);
+  }
+  .%R .%R__value-text {
+    display: block;
+    max-width: 22em;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--hl-warm-muted);
+  }
+  @media (max-width: 760px) {
+    .%R .%R__icons { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    .%R .%R__icons li { flex-direction: row; align-items: flex-start; text-align: left; }
+    .%R .%R__icons li > span:only-of-type { align-self: center; }
+    .%R .%R__icon { width: 56px; height: 56px; }
+    .%R .%R__icon svg { width: 28px; height: 28px; }
+    .%R .%R__benefit-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+"""
+
+CSS["cards"] = """
+  /* ---------- Cards ---------- */
+  .%R .%R__cards-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(20px, 5vw, 72px);
+    align-items: end;
+    margin: 0 0 clamp(36px, 5vw, 52px);
+  }
+  .%R .%R__cards-head .%R__h2 { margin-bottom: 0; }
+  .%R .%R__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(16px, 2vw, 24px);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .%R .%R__card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin: 0;
+    padding: clamp(26px, 3vw, 34px);
+    border: 1px solid var(--hl-line);
+    border-radius: 10px;
+    background:
+      linear-gradient(118deg, rgba(255, 255, 255, 0) 0 56%, rgba(255, 255, 255, 0.65) 56% 100%),
+      #F3EFE7;
+  }
+  .%R .%R__card::marker { content: none; }
+  .%R .%R__card-tab {
+    display: inline-block;
+    margin: 0 0 16px;
+    padding: 9px 16px;
+    border-radius: 4px;
+    background: var(--hl-charcoal);
+    color: var(--hl-warm);
+    font-family: var(--hl-sans);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .%R .%R__card .%R__p { flex: 1 1 auto; margin-bottom: 22px; }
+  .%R .%R__cards--plain .%R__card { background: var(--hl-white); }
+  .%R .%R__cards--plain .%R__card .%R__p { margin-bottom: 0; }
+  @media (max-width: 960px) {
+    .%R .%R__cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 760px) {
+    .%R .%R__cards-head { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 620px) {
+    .%R .%R__cards { grid-template-columns: minmax(0, 1fr); }
+  }
+"""
+
+CSS["steps"] = """
+  /* ---------- Numbered steps ---------- */
+  .%R .%R__steps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .%R .%R__step {
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+    margin: 0 0 26px;
+  }
+  .%R .%R__step:last-child { margin-bottom: 0; }
+  .%R .%R__step::marker { content: none; }
+  .%R .%R__num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    border-radius: 8px;
+    background: var(--hl-white);
+    box-shadow: 0 8px 22px rgba(13, 13, 13, 0.1);
+    font-family: var(--hl-serif);
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--hl-gold-text);
+  }
+  .%R .%R__s--white .%R__num { background: var(--hl-light); }
+  .%R .%R__step .%R__h3 { margin: 4px 0; }
+  .%R .%R__step .%R__link { margin-top: 12px; }
+  .%R .%R__steps--large .%R__step {
+    margin-bottom: clamp(26px, 3.4vw, 36px);
+    padding-bottom: clamp(26px, 3.4vw, 36px);
+    border-bottom: 1px solid var(--hl-line);
+  }
+  .%R .%R__steps--large .%R__step:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+  .%R .%R__steps--large .%R__h3 {
+    font-family: var(--hl-serif);
+    font-size: clamp(1.3125rem, 0.6vw + 1.1rem, 1.5625rem);
+  }
+"""
+
+CSS["resource"] = """
+  /* ---------- Resource links ---------- */
+  .%R .%R__res {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(28px, 5vw, 72px);
+    align-items: center;
+  }
+  .%R .%R__tiles {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .%R .%R__tiles li { margin: 0; }
+  .%R .%R__tiles li::marker { content: none; }
+  .%R .%R__tile {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    border: 1px solid var(--hl-line);
+    border-left: 4px solid var(--hl-gold);
+    border-radius: 8px;
+    background: var(--hl-white);
+    color: var(--hl-ink);
+    font-family: var(--hl-serif);
+    font-size: 1.3125rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .%R .%R__tile svg {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    color: var(--hl-gold-text);
+    transition: transform 0.2s ease;
+  }
+  .%R .%R__tile:hover {
+    border-color: var(--hl-gold);
+    box-shadow: 0 10px 26px rgba(13, 13, 13, 0.08);
+  }
+  .%R .%R__tile:hover svg { transform: translateX(3px); }
+  @media (max-width: 760px) {
+    .%R .%R__res { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .%R .%R__tile,
+    .%R .%R__tile svg { transition: none; }
+    .%R .%R__tile:hover svg { transform: none; }
+  }
+"""
+
+CSS["faq"] = """
+  /* ---------- FAQ accordion (native details/summary: keyboard and touch ready) ---------- */
+  .%R .%R__faq {
+    max-width: 880px;
+    margin: 0 auto;
+  }
+  .%R .%R__faq details {
+    margin: 0 0 12px;
+    border: 1px solid var(--hl-gold);
+    border-radius: 8px;
+    background: var(--hl-white);
+  }
+  .%R .%R__faq summary {
+    position: relative;
+    display: block;
+    padding: 18px 56px 18px 22px;
+    font-family: var(--hl-sans);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--hl-ink);
+    list-style: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+  .%R .%R__faq summary::-webkit-details-marker { display: none; }
+  .%R .%R__faq summary::before,
+  .%R .%R__faq summary::after {
     content: "";
     position: absolute;
-    inset: 14px -14px -14px 14px;
-    border: 1px solid rgba(210, 163, 76, 0.45);
-    border-radius: 4px;
+    top: 50%;
+    right: 22px;
+    width: 14px;
+    height: 2px;
+    margin-top: -1px;
+    background: var(--hl-ink);
+    transition: transform 0.2s ease;
+  }
+  .%R .%R__faq summary::after { transform: rotate(90deg); }
+  .%R .%R__faq details[open] summary { color: var(--hl-gold-text); }
+  .%R .%R__faq details[open] summary::before { background: var(--hl-gold-text); }
+  .%R .%R__faq details[open] summary::after { transform: rotate(0deg); background: var(--hl-gold-text); }
+  .%R .%R__faq summary:hover { color: var(--hl-gold-text); }
+  .%R .%R__faq summary:focus-visible { outline-offset: 2px; }
+  .%R .%R__faq-body { padding: 0 22px 20px; }
+  .%R .%R__faq-body .%R__p { max-width: 70ch; font-size: 1rem; }
+  @media (prefers-reduced-motion: reduce) {
+    .%R .%R__faq summary,
+    .%R .%R__faq summary::before,
+    .%R .%R__faq summary::after { transition: none; }
+  }
+"""
+
+CSS["banner"] = """
+  /* ---------- Inner-page banner (shorter than the Home hero) ---------- */
+  .%R .%R__banner {
+    position: relative;
+    margin: 0;
+    padding: clamp(56px, 7vw, 96px) var(--hl-gutter);
+    background:
+      radial-gradient(45% 80% at 100% 0%, rgba(210, 163, 76, 0.14), rgba(210, 163, 76, 0) 65%),
+      var(--hl-band);
+    border-bottom: 1px solid var(--hl-line);
+    overflow: hidden;
+  }
+  .%R .%R__banner--dark {
+    background:
+      radial-gradient(45% 80% at 100% 0%, rgba(210, 163, 76, 0.16), rgba(210, 163, 76, 0) 65%),
+      var(--hl-charcoal);
+    border-bottom: 0;
+    color: var(--hl-warm);
+  }
+  .%R .%R__banner--dark .%R__h1 { color: var(--hl-warm); }
+  .%R .%R__banner--dark .%R__lede { color: var(--hl-warm-muted); }
+  .%R .%R__banner--dark .%R__eyebrow { color: var(--hl-gold); }
+  .%R .%R__banner .%R__h1 { max-width: 18em; }
+  .%R .%R__banner-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+    gap: clamp(36px, 6vw, 88px);
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .%R .%R__banner-grid { grid-template-columns: minmax(0, 1fr); }
+  }
+"""
+
+CSS["photo"] = """
+  /* ---------- Single photo with a gold offset frame ---------- */
+  .%R .%R__photo {
+    position: relative;
+    margin: 0 16px 16px 0;
+  }
+  .%R .%R__photo::before {
+    content: "";
+    position: absolute;
+    inset: 16px -16px -16px 16px;
+    border: 2px solid var(--hl-gold);
+    border-radius: 10px;
     pointer-events: none;
   }
-  .%R .%R__figure img {
+  .%R .%R__photo img {
     position: relative;
     z-index: 1;
     display: block;
@@ -478,220 +941,41 @@ CSS["figure"] = """
     height: auto;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    border-radius: 4px;
-    background: var(--hl-surface);
+    border-radius: 10px;
+    background: var(--hl-band);
   }
+  .%R .%R__photo--tall img { aspect-ratio: 4 / 5; }
   @media (max-width: 900px) {
-    .%R .%R__figure img {
-      aspect-ratio: 16 / 10;
-    }
-  }
-"""
-
-CSS["cols"] = """
-  /* ---------- Three columns ---------- */
-  .%R .%R__cols {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: clamp(28px, 4vw, 56px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .%R .%R__col {
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 28px 0 0;
-    border-top: 1px solid var(--hl-line-strong);
-  }
-  .%R .%R__col::marker {
-    content: none;
-  }
-  .%R .%R__col .%R__p {
-    flex: 1 1 auto;
-  }
-  .%R .%R__col .%R__link {
-    align-self: flex-start;
-    margin-top: 18px;
-  }
-  @media (max-width: 900px) {
-    .%R .%R__cols {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-"""
-
-CSS["grid2"] = """
-  /* ---------- Two-column list ---------- */
-  .%R .%R__grid2 {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 clamp(32px, 5vw, 72px);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-bottom: 1px solid var(--hl-line);
-  }
-  .%R .%R__grid2 > li,
-  .%R .%R__grid2 > div {
-    margin: 0;
-    padding: 26px 0;
-    border-top: 1px solid var(--hl-line);
-  }
-  .%R .%R__grid2 > li::marker {
-    content: none;
-  }
-  .%R .%R__below {
-    margin: clamp(28px, 3.4vw, 36px) 0 0;
-  }
-  @media (max-width: 760px) {
-    .%R .%R__grid2 {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-"""
-
-CSS["split"] = """
-  /* ---------- Copy beside a list or photo ---------- */
-  .%R .%R__split {
-    display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
-    gap: clamp(36px, 6vw, 96px);
-    align-items: start;
-  }
-  .%R .%R__split--center {
-    align-items: center;
-  }
-  .%R .%R__split .%R__link {
-    margin-top: 22px;
-  }
-  @media (max-width: 900px) {
-    .%R .%R__split {
-      grid-template-columns: minmax(0, 1fr);
-    }
-  }
-"""
-
-CSS["points"] = """
-  /* ---------- Points with a small house mark ---------- */
-  .%R .%R__points {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-bottom: 1px solid var(--hl-line);
-  }
-  .%R .%R__points > li {
-    display: grid;
-    grid-template-columns: 22px minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-    margin: 0;
-    padding: 20px 0;
-    border-top: 1px solid var(--hl-line);
-    font-size: 1.0625rem;
-    line-height: 1.6;
-    color: var(--hl-text);
-  }
-  .%R .%R__points > li::marker {
-    content: none;
-  }
-  .%R .%R__points svg {
-    width: 22px;
-    height: 22px;
-    margin-top: 2px;
-    color: var(--hl-gold);
-  }
-"""
-
-CSS["steps"] = """
-  /* ---------- Numbered stages ---------- */
-  .%R .%R__steps {
-    max-width: 880px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .%R .%R__step {
-    position: relative;
-    display: grid;
-    grid-template-columns: clamp(52px, 6vw, 72px) minmax(0, 1fr);
-    gap: clamp(16px, 3vw, 32px);
-    margin: 0;
-    padding: 0 0 clamp(32px, 4vw, 44px);
-  }
-  .%R .%R__step::marker {
-    content: none;
-  }
-  .%R .%R__step::before {
-    content: "";
-    position: absolute;
-    top: 58px;
-    bottom: 10px;
-    left: calc(clamp(52px, 6vw, 72px) / 2);
-    width: 1px;
-    background: var(--hl-line-strong);
-  }
-  .%R .%R__step:last-child {
-    padding-bottom: 0;
-  }
-  .%R .%R__step:last-child::before {
-    content: none;
-  }
-  .%R .%R__step-num {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: clamp(52px, 6vw, 72px);
-    height: clamp(52px, 6vw, 72px);
-    border: 1px solid var(--hl-line-strong);
-    border-radius: 50%;
-    font-family: var(--hl-serif);
-    font-size: clamp(1.375rem, 1vw + 1rem, 1.75rem);
-    font-weight: 600;
-    line-height: 1;
-    color: var(--hl-gold);
-  }
-  .%R .%R__step-body {
-    padding-top: clamp(10px, 1.4vw, 18px);
-  }
-  .%R .%R__step .%R__h3 {
-    font-family: var(--hl-serif);
-    font-size: clamp(1.375rem, 0.8vw + 1.1rem, 1.625rem);
-  }
-  .%R .%R__step .%R__link {
-    margin-top: 14px;
+    .%R .%R__photo img { aspect-ratio: 16 / 10; }
+    .%R .%R__photo--tall img { aspect-ratio: 16 / 11; object-position: 50% 28%; }
   }
 """
 
 CSS["rows"] = """
-  /* ---------- Program rows ---------- */
-  .%R .%R__rows {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    border-bottom: 1px solid var(--hl-line);
-  }
-  .%R .%R__row {
+  /* ---------- Program sections ---------- */
+  .%R .%R__program {
     display: grid;
     grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
-    gap: clamp(14px, 5vw, 72px);
+    gap: clamp(16px, 5vw, 72px);
+    align-items: start;
+  }
+  .%R .%R__program-num {
+    display: block;
+    margin: 0 0 6px;
+    font-family: var(--hl-serif);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--hl-gold-text);
+  }
+  .%R .%R__program .%R__h2 {
     margin: 0;
-    padding: clamp(28px, 3.4vw, 40px) 0;
-    border-top: 1px solid var(--hl-line);
-    scroll-margin-top: 100px;
+    padding-left: 18px;
+    border-left: 3px solid var(--hl-gold);
+    font-size: clamp(1.625rem, 1vw + 1.25rem, 2.125rem);
   }
-  .%R .%R__row::marker {
-    content: none;
-  }
-  .%R .%R__row .%R__h2 {
-    margin: 0;
-    font-size: clamp(1.5rem, 1vw + 1.15rem, 2rem);
-  }
+  .%R .%R__program .%R__p { font-size: 1.125rem; }
   @media (max-width: 760px) {
-    .%R .%R__row {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    .%R .%R__program { grid-template-columns: minmax(0, 1fr); }
   }
 """
 
@@ -703,7 +987,6 @@ CSS["gloss"] = """
     gap: 0 clamp(32px, 5vw, 72px);
     margin: 0;
     padding: 0;
-    border-bottom: 1px solid var(--hl-line);
   }
   .%R .%R__gloss > div {
     margin: 0;
@@ -716,139 +999,89 @@ CSS["gloss"] = """
     font-size: 1.3125rem;
     font-weight: 600;
     line-height: 1.3;
-    color: var(--hl-gold);
+    color: var(--hl-ink);
   }
   .%R .%R__gloss dd {
     margin: 0;
     font-size: 1rem;
     line-height: 1.7;
-    color: var(--hl-muted);
+    color: var(--hl-ink-muted);
   }
   @media (max-width: 760px) {
-    .%R .%R__gloss {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    .%R .%R__gloss { grid-template-columns: minmax(0, 1fr); }
   }
 """
 
-CSS["callout"] = """
-  /* ---------- Callouts and notes ---------- */
+CSS["lists"] = """
+  /* ---------- Point lists, notes, callouts ---------- */
+  .%R .%R__points {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .%R .%R__points > li {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+    margin: 0;
+    padding: 16px 0;
+    border-top: 1px solid var(--hl-line);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--hl-ink);
+  }
+  .%R .%R__points > li:last-child { border-bottom: 1px solid var(--hl-line); }
+  .%R .%R__points > li::marker { content: none; }
+  .%R .%R__points svg {
+    width: 24px;
+    height: 24px;
+    margin-top: 1px;
+    color: var(--hl-gold-text);
+  }
   .%R .%R__note {
     max-width: 72ch;
-    margin: clamp(24px, 3vw, 32px) 0 0;
+    margin: clamp(22px, 3vw, 30px) 0 0;
     font-size: 0.9375rem;
     line-height: 1.65;
-    color: var(--hl-muted);
+    color: var(--hl-ink-muted);
   }
   .%R .%R__callout {
     display: grid;
-    grid-template-columns: 26px minmax(0, 1fr);
+    grid-template-columns: 28px minmax(0, 1fr);
     gap: 16px;
     max-width: 880px;
-    margin: 0;
-    padding: 24px 28px;
+    margin: clamp(32px, 4vw, 44px) 0 0;
+    padding: 22px 26px;
     border: 1px solid var(--hl-line);
-    border-left: 3px solid var(--hl-gold);
-    border-radius: 3px;
-    background: rgba(210, 163, 76, 0.06);
+    border-left: 4px solid var(--hl-gold);
+    border-radius: 8px;
+    background: var(--hl-light);
   }
-  .%R .%R__callout--spaced {
-    margin-top: clamp(32px, 4vw, 44px);
-  }
-  .%R .%R__callout svg {
-    width: 26px;
-    height: 26px;
-    color: var(--hl-gold);
-  }
-  .%R .%R__callout .%R__h3 {
-    margin-bottom: 6px;
-  }
-"""
-
-CSS["faq"] = """
-  /* ---------- Questions (native disclosure: keyboard and touch ready) ---------- */
-  .%R .%R__faq {
-    max-width: 880px;
-    margin: 0;
-    border-bottom: 1px solid var(--hl-line);
-  }
-  .%R .%R__faq details {
-    margin: 0;
-    border-top: 1px solid var(--hl-line);
-  }
-  .%R .%R__faq summary {
-    position: relative;
-    display: block;
-    padding: 24px 48px 24px 0;
-    font-family: var(--hl-serif);
-    font-size: clamp(1.125rem, 0.5vw + 1rem, 1.375rem);
-    font-weight: 600;
-    line-height: 1.4;
-    color: var(--hl-text);
-    list-style: none;
-    cursor: pointer;
-    transition: color 0.2s ease;
-  }
-  .%R .%R__faq summary::-webkit-details-marker {
-    display: none;
-  }
-  .%R .%R__faq summary::before,
-  .%R .%R__faq summary::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    right: 6px;
-    width: 16px;
-    height: 1.5px;
-    background: var(--hl-gold);
-    transition: transform 0.2s ease;
-  }
-  .%R .%R__faq summary::after {
-    transform: rotate(90deg);
-  }
-  .%R .%R__faq details[open] summary::after {
-    transform: rotate(0deg);
-  }
-  .%R .%R__faq summary:hover {
-    color: var(--hl-gold-hover);
-  }
-  .%R .%R__faq-body {
-    max-width: 70ch;
-    padding: 0 0 26px;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .%R .%R__faq summary,
-    .%R .%R__faq summary::after {
-      transition: none;
-    }
-  }
+  .%R .%R__callout svg { width: 28px; height: 28px; color: var(--hl-gold-text); }
+  .%R .%R__callout .%R__h3 { margin-bottom: 4px; }
 """
 
 CSS["contact"] = """
-  /* ---------- Inquiry area ---------- */
+  /* ---------- Contact ---------- */
   .%R .%R__contact {
-    display: flex;
-    flex-wrap: wrap;
-    gap: clamp(36px, 6vw, 88px);
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(40px, 6vw, 88px);
+    align-items: start;
   }
-  .%R .%R__contact-copy {
-    flex: 1 1 340px;
-    max-width: 560px;
-  }
-  /* The GHL form goes inside .%R__form. While it's empty the panel
-     collapses, so visitors never see an empty box. */
+  /* The GHL form goes inside .%R__form. While it's empty the box is
+     hidden, so visitors never see an empty panel. */
   .%R .%R__form {
-    flex: 1.4 1 420px;
-    min-width: 0;
-    padding: clamp(20px, 3vw, 32px);
+    margin: 26px 0 0;
+    padding: clamp(20px, 3vw, 30px);
     border: 1px solid var(--hl-line);
-    border-radius: 4px;
-    background: var(--hl-surface-2);
+    border-top: 4px solid var(--hl-gold);
+    border-radius: 10px;
+    background: var(--hl-white);
+    box-shadow: 0 16px 40px rgba(13, 13, 13, 0.06);
   }
-  .%R .%R__form:empty {
-    display: none;
-  }
+  .%R .%R__form:empty { display: none; }
   .%R .%R__form iframe {
     display: block;
     width: 100%;
@@ -862,108 +1095,126 @@ CSS["contact"] = """
   }
   .%R .%R__notices > li {
     display: grid;
-    grid-template-columns: 20px minmax(0, 1fr);
+    grid-template-columns: 22px minmax(0, 1fr);
     gap: 12px;
     margin: 0;
     padding: 14px 0;
     border-top: 1px solid var(--hl-line);
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: var(--hl-muted);
+    color: var(--hl-ink-muted);
   }
-  .%R .%R__notices > li::marker {
-    content: none;
-  }
-  .%R .%R__notices svg {
-    width: 20px;
-    height: 20px;
-    margin-top: 1px;
-    color: var(--hl-gold);
-  }
+  .%R .%R__notices > li::marker { content: none; }
+  .%R .%R__notices svg { width: 22px; height: 22px; color: var(--hl-gold-text); }
   .%R .%R__notices a {
-    color: var(--hl-gold-hover);
+    color: var(--hl-gold-text);
+    font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 3px;
   }
   .%R .%R__apply {
-    margin: 30px 0 0;
-    padding: 24px 0 0;
+    margin: 26px 0 0;
+    padding: 22px 0 0;
     border-top: 1px solid var(--hl-line);
   }
-  .%R .%R__apply .%R__actions {
-    margin-top: 16px;
+  .%R .%R__apply .%R__actions { margin-top: 14px; }
+  @media (max-width: 900px) {
+    .%R .%R__contact { grid-template-columns: minmax(0, 1fr); }
   }
 """
 
 CSS["legal"] = """
   /* ---------- Legal draft ---------- */
-  .%R .%R__legal {
-    max-width: 820px;
-  }
+  .%R .%R__legal { max-width: 820px; }
   .%R .%R__status {
-    margin: 24px 0 0;
-    padding: 16px 20px;
-    border: 1px solid var(--hl-line-strong);
-    border-left: 3px solid var(--hl-gold);
-    border-radius: 3px;
-    background: rgba(210, 163, 76, 0.08);
+    margin: 22px 0 0;
+    padding: 14px 18px;
+    border: 1px solid var(--hl-gold);
+    border-left: 4px solid var(--hl-gold);
+    border-radius: 6px;
+    background: var(--hl-white);
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.6;
-    color: var(--hl-text);
+    color: var(--hl-ink);
   }
   .%R .%R__legal-sec {
     margin: 0;
-    padding: clamp(28px, 3.4vw, 36px) 0;
+    padding: clamp(26px, 3.2vw, 34px) 0;
     border-top: 1px solid var(--hl-line);
   }
+  .%R .%R__legal-sec:first-child { padding-top: 0; border-top: 0; }
   .%R .%R__legal-sec .%R__h2 {
-    font-size: clamp(1.375rem, 0.8vw + 1.1rem, 1.75rem);
-    margin-bottom: 12px;
+    margin-bottom: 10px;
+    font-size: clamp(1.375rem, 0.7vw + 1.1rem, 1.75rem);
   }
-  .%R .%R__legal-num {
-    margin-right: 8px;
-    color: var(--hl-gold);
-  }
+  .%R .%R__legal-num { margin-right: 8px; color: var(--hl-gold-text); }
   .%R .%R__review {
     margin: 12px 0 0;
     padding: 14px 18px;
-    border: 1px dashed rgba(210, 163, 76, 0.55);
-    border-radius: 3px;
+    border: 1px dashed var(--hl-gold-text);
+    border-radius: 6px;
+    background: #FFFDF7;
     font-size: 0.9375rem;
     line-height: 1.6;
-    color: rgba(242, 240, 235, 0.88);
+    color: var(--hl-ink);
   }
-  .%R .%R__review strong {
-    color: var(--hl-gold);
+  .%R .%R__review strong { color: var(--hl-gold-text); }
+  .%R .%R__review ul { margin: 8px 0 0; padding: 0 0 0 20px; }
+  .%R .%R__review li { margin: 4px 0; }
+"""
+
+CSS["stages"] = """
+  /* ---------- Photo beside the detailed stages ---------- */
+  .%R .%R__stage-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+    gap: clamp(40px, 6vw, 88px);
+    align-items: start;
   }
-  .%R .%R__review ul {
-    margin: 8px 0 0;
-    padding: 0 0 0 20px;
+  .%R .%R__stage-grid--even { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); }
+  .%R .%R__stage-media {
+    position: sticky;
+    top: 110px;
   }
-  .%R .%R__review li {
-    margin: 4px 0;
+  @media (max-width: 900px) {
+    .%R .%R__stage-grid,
+    .%R .%R__stage-grid--even { grid-template-columns: minmax(0, 1fr); }
+    .%R .%R__stage-media { position: static; }
   }
 """
 
 # ---------------------------------------------------------------------------
-# Small shared pieces
+# Icons and small shared pieces (SVG line icons, stroke = currentColor)
 # ---------------------------------------------------------------------------
-ROOF = ('<svg viewBox="0 0 20 12" fill="none" stroke="currentColor" stroke-width="1.5" '
-        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-        '<path d="M1.5 11 10 2.5l8.5 8.5"/></svg>')
-HOUSE = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
-         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-         '<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/></svg>')
-SHIELD = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
-          'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-          '<path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6L12 3z"/><path d="m9 12 2 2 4-4"/></svg>')
-INFO = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" '
-        'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-        '<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>')
-ARROW = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
-         'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">'
-         '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>')
+def svg(paths, box="0 0 24 24", sw="1.6"):
+    return (f'<svg viewBox="{box}" fill="none" stroke="currentColor" stroke-width="{sw}" '
+            f'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">{paths}</svg>')
+
+
+ROOF = svg('<path d="M1.5 11 10 2.5l8.5 8.5"/>', "0 0 20 12")
+ARROW = svg('<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>', sw="2")
+HOUSE = svg('<path d="M3.5 11 12 4l8.5 7"/><path d="M6 9.5V20h12V9.5"/><path d="M10 20v-5h4v5"/>')
+CHECK = svg('<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.6L16 9.5"/>')
+SHIELD = svg('<path d="M12 3 4.5 6v5.5c0 4.6 3.1 8.2 7.5 9.5 4.4-1.3 7.5-4.9 7.5-9.5V6L12 3z"/><path d="m9 12 2 2 4-4"/>')
+INFO = svg('<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>')
+ICON_PURCHASE = svg('<path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><circle cx="12" cy="13.5" r="2"/><path d="M12 15.5V18"/>')
+ICON_REFI = svg('<path d="M20 12a8 8 0 0 1-13.6 5.7"/><path d="M4 12a8 8 0 0 1 13.6-5.7"/><path d="M17.5 2.8v3.6h-3.6"/><path d="M6.5 21.2v-3.6h3.6"/>')
+ICON_OPTIONS = svg('<rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M8 8h8"/><path d="M8 12h8"/><path d="M8 16h5"/>')
+ICON_TALK = svg('<path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8 9h8"/><path d="M8 12.5h5"/>')
+ICON_PERSON = svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/>')
+ICON_DECIDE = svg('<circle cx="12" cy="12" r="9"/><path d="m8 12.5 2.6 2.6L16 9.5"/>')
+
+
+def lines_svg(cls):
+    """Subtle flowing gold linework for dark bands (decorative)."""
+    paths = []
+    for i in range(9):
+        o = i * 9
+        paths.append(f'<path d="M0 {300 - o} C 120 {200 - o}, 220 {320 - o * 0.5:g}, 340 {170 - o} '
+                     f'S 520 {60 - o * 0.3:g}, 600 {20 + o * 0.4:g}"/>')
+    return (f'<svg class="{cls}" viewBox="0 0 600 320" fill="none" stroke="currentColor" stroke-width="1" '
+            f'aria-hidden="true" focusable="false">{"".join(paths)}</svg>')
 
 
 def eyebrow(text):
@@ -974,19 +1225,22 @@ def link(href, text):
     return f'<a class="%R__link" href="{href}">{text}{ARROW}</a>'
 
 
-def btn(href, text, kind="gold"):
-    return f'<a class="%R__btn %R__btn--{kind}" href="{href}">{text}</a>'
+def btn(href, text, small=False, label=None):
+    sz = " %R__btn--sm" if small else ""
+    aria = f' aria-label="{label}"' if label else ""
+    return f'<a class="%R__btn{sz}" href="{href}"{aria}>{text}{ARROW}</a>'
 
 
-def points(items):
-    lis = "\n".join(f"          <li>{HOUSE}<span>{t}</span></li>" for t in items)
-    return f'        <ul class="%R__points">\n{lis}\n        </ul>'
+def points(items, indent="        "):
+    lis = "\n".join(f"{indent}  <li>{HOUSE}<span>{t}</span></li>" for t in items)
+    return f'{indent}<ul class="%R__points">\n{lis}\n{indent}</ul>'
 
 
 def cta(title_id, headline, text=None, label=CTA_LABEL, href="/contact"):
     lede = f'\n      <p class="%R__lede">{text}</p>' if text else ""
-    return f"""  <section class="%R__section %R__cta" aria-labelledby="%R-{title_id}">
-    <div class="%R__inner">
+    return f"""  <section class="%R__s %R__s--dark %R__cta" aria-labelledby="%R-{title_id}">
+    {lines_svg("%R__lines %R__lines--br")}
+    <div class="%R__in">
       <h2 class="%R__h2" id="%R-{title_id}">{headline}</h2>{lede}
       <div class="%R__actions">
         {btn(href, label)}
@@ -995,29 +1249,56 @@ def cta(title_id, headline, text=None, label=CTA_LABEL, href="/contact"):
   </section>"""
 
 
-def disclaimer():
-    return f"""  <aside class="%R__disclaimer" aria-label="Loan disclaimer">
-    <p>{DISCLAIMER}</p>
-  </aside>"""
-
-
-def figure(key, eager=False):
-    loading = 'fetchpriority="high"' if eager else 'loading="lazy"'
-    return (f'<figure class="%R__figure"><img src="%IMG:{key}%" alt="{ALT[key]}" width="1200" height="800" '
-            f'{loading} decoding="async"></figure>')
-
-
-def phero(title_id, eyebrow_text, h1, lede, image=None):
-    media = f"\n      {figure(image, eager=True)}" if image else ""
-    return f"""  <section class="%R__phero" aria-labelledby="%R-{title_id}">
-    <div class="%R__inner %R__phero-grid">
-      <div class="%R__phero-copy">
+def banner(title_id, eyebrow_text, h1, lede, dark=False, media=None, center=False):
+    cls = " %R__banner--dark" if dark else ""
+    lines = f"\n    {lines_svg('%R__lines %R__lines--br')}" if dark else ""
+    copy = f"""<div{' class="%R__center"' if center else ''}>
         {eyebrow(eyebrow_text)}
         <h1 class="%R__h1" id="%R-{title_id}">{h1}</h1>
         <p class="%R__lede">{lede}</p>
-      </div>{media}
-    </div>
+      </div>"""
+    if media:
+        inner = f"""<div class="%R__in %R__banner-grid">
+      {copy}
+      {media}
+    </div>"""
+    else:
+        inner = f"""<div class="%R__in">
+      {copy}
+    </div>"""
+    return f"""  <section class="%R__banner{cls}" aria-labelledby="%R-{title_id}">{lines}
+    {inner}
   </section>"""
+
+
+def photo(key, tall=False, eager=False):
+    t = " %R__photo--tall" if tall else ""
+    return f'<figure class="%R__photo{t}">{img(key, eager=eager)}</figure>'
+
+
+def faq_items(items, first_open=False):
+    out = []
+    for i, (q, a) in enumerate(items):
+        op = " open" if first_open and i == 0 else ""
+        out.append(f"""        <details{op}>
+          <summary>{q}</summary>
+          <div class="%R__faq-body">
+            <p class="%R__p">{a}</p>
+          </div>
+        </details>""")
+    return "\n".join(out)
+
+
+def step_list(items, extra_cls="", small=True):
+    p_cls = "%R__p %R__p--sm" if small else "%R__p"
+    lis = "\n".join(f"""          <li class="%R__step">
+            <span class="%R__num" aria-hidden="true">{i}</span>
+            <div>
+              <h3 class="%R__h3"><span class="%R__sr">Step {i}: </span>{t}</h3>
+              <p class="{p_cls}">{d}</p>{extra}
+            </div>
+          </li>""" for i, (t, d, extra) in enumerate(items, 1))
+    return f'        <ol class="%R__steps{extra_cls}">\n{lis}\n        </ol>'
 
 
 APPLY_SCRIPT = """<script>
@@ -1034,8 +1315,8 @@ APPLY_SCRIPT = """<script>
 
     var url = String(HOME_LOAN_APPLICATION_URL || '').trim();
     if (!/^https:\\/\\/[^\\s"'<>]+$/i.test(url)) return;
-    var root = document.querySelectorAll('.%R [data-hl-apply]');
-    Array.prototype.forEach.call(root, function (el) {
+    var els = document.querySelectorAll('.%R [data-hl-apply]');
+    Array.prototype.forEach.call(els, function (el) {
       var a = el.matches('a') ? el : el.querySelector('a[data-hl-apply-link]');
       if (a) a.setAttribute('href', url);
       el.hidden = false;
@@ -1044,323 +1325,30 @@ APPLY_SCRIPT = """<script>
 </script>"""
 
 # ---------------------------------------------------------------------------
-# Pages
+# Shared content (approved copy)
 # ---------------------------------------------------------------------------
-PAGES = []
-
-
-def page(**kw):
-    PAGES.append(kw)
-
-
-# ---------- 1. Home ----------
-page(
-    file="home-loans-home.html", route="/", root="cbhl-home",
-    title="Covered Bridge Home Loans | Home Purchase &amp; Refinancing Guidance",
-    meta="Explore home purchase and refinancing options with Covered Bridge Home Loans, including Conventional, FHA, VA and USDA loans, with guidance through the mortgage process.",
-    css=["base", "hero", "cols", "grid2", "split", "points"],
-    body=f"""  <section class="%R__hero" aria-labelledby="%R-title">
-    <img class="%R__hero-img" src="%IMG:heroHouse%" alt="{ALT['heroHouse']}" width="1600" height="900" fetchpriority="high" decoding="async">
-    <div class="%R__hero-shade" aria-hidden="true"></div>
-    <div class="%R__inner">
-      <div class="%R__hero-copy">
-        {eyebrow("Home Purchase &amp; Refinancing")}
-        <h1 class="%R__h1" id="%R-title">Your next chapter starts at home.</h1>
-        <p class="%R__lede">Whether you&rsquo;re buying your first home, planning your next move or exploring refinancing, Covered Bridge Home Loans helps you understand your options and take the next step with confidence.</p>
-        <div class="%R__actions">
-          {btn("/contact", CTA_LABEL)}
-          {btn("/loan-options", "Explore Loan Options", "outline")}
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="%R__section" aria-labelledby="%R-paths">
-    <div class="%R__inner">
-      <header class="%R__header">
-        {eyebrow("Where You Are")}
-        <h2 class="%R__h2" id="%R-paths">What brings you here?</h2>
-      </header>
-      <ul class="%R__cols">
-        <li class="%R__col">
-          <h3 class="%R__h3">Buying Your First Home</h3>
-          <p class="%R__p %R__p--sm">Get a clearer picture of your financing options and what to prepare before moving forward.</p>
-          {link("/contact", "Talk about buying your first home")}
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Making Your Next Move</h3>
-          <p class="%R__p %R__p--sm">Explore home financing as your needs, plans or circumstances change.</p>
-          {link("/contact", "Talk about your next move")}
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Considering Refinancing</h3>
-          <p class="%R__p %R__p--sm">Discuss whether refinancing may fit your goals and what factors to consider.</p>
-          {link("/contact", "Talk about refinancing")}
-        </li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="%R__section %R__section--surface" aria-labelledby="%R-programs">
-    <div class="%R__inner">
-      <header class="%R__header">
-        {eyebrow("Loan Options")}
-        <h2 class="%R__h2" id="%R-programs">Explore your loan options</h2>
-        <p class="%R__p">Different borrowers and properties may call for different programs.</p>
-      </header>
-      <ul class="%R__grid2">
-        <li>
-          <h3 class="%R__h3">Conventional</h3>
-          <p class="%R__p %R__p--sm">Financing options for eligible homebuyers and property types.</p>
-        </li>
-        <li>
-          <h3 class="%R__h3">FHA</h3>
-          <p class="%R__p %R__p--sm">Government-insured financing that may suit a range of borrowers, including some first-time buyers.</p>
-        </li>
-        <li>
-          <h3 class="%R__h3">VA</h3>
-          <p class="%R__p %R__p--sm">Options for eligible veterans, service members and qualifying surviving spouses.</p>
-        </li>
-        <li>
-          <h3 class="%R__h3">USDA</h3>
-          <p class="%R__p %R__p--sm">Options for eligible borrowers and properties in qualifying areas.</p>
-        </li>
-      </ul>
-      <p class="%R__below">{link("/loan-options", "Compare Loan Options")}</p>
-    </div>
-  </section>
-
-  <section class="%R__section" aria-labelledby="%R-guidance">
-    <div class="%R__inner %R__split">
-      <div>
-        {eyebrow("The Process")}
-        <h2 class="%R__h2" id="%R-guidance">Guidance through the process</h2>
-        <p class="%R__p">A home loan involves more than choosing a program. Understanding the paperwork, questions and next steps can help you move through the process with greater clarity.</p>
-        {link("/how-it-works", "See How It Works")}
-      </div>
-{points([
-    "Discuss your goals and circumstances.",
-    "Understand the information and documents needed.",
-    "Stay informed as your loan progresses.",
-])}
-    </div>
-  </section>
-
-{cta("closing", "Let&rsquo;s talk about your next move.", "Start with a conversation about your homebuying or refinancing plans.")}
-
-{disclaimer()}""",
-)
-
-# ---------- 2. Loan Options ----------
+# slug, full name, card name, Loan Options text, Home card text
 PROGRAMS = [
-    ("conventional", "Conventional Loans",
-     "Conventional financing may be available for eligible primary residences, second homes and investment properties. Down-payment options, mortgage insurance and other requirements depend on the specific program and borrower."),
-    ("fha", "FHA Loans",
-     "FHA loans are government-insured mortgages that may be suitable for a range of borrowers, including some first-time homebuyers. Credit, down-payment and property requirements apply."),
-    ("va", "VA Loans",
-     "VA loan options are available to eligible veterans, service members and qualifying surviving spouses. Eligibility, entitlement and the specific transaction determine the available options."),
-    ("usda", "USDA Loans",
-     "USDA financing may be available to eligible borrowers purchasing qualifying properties in eligible areas. Household income, property location and program requirements apply."),
-    ("refinancing", "Refinancing",
-     "Refinancing replaces an existing mortgage with a new loan. Whether it makes sense depends on your goals, available terms, costs and how long you expect to keep the loan."),
-    ("down-payment-assistance", "Down Payment Assistance",
-     "Some eligible buyers may have access to assistance programs. Availability, funding, income limits, location and other conditions vary. Ask which programs may apply to your situation."),
+    ("conventional", "Conventional Loans", "Conventional",
+     "Conventional financing may be available for eligible primary residences, second homes and investment properties. Down-payment options, mortgage insurance and other requirements depend on the specific program and borrower.",
+     "Financing options for eligible homebuyers and property types."),
+    ("fha", "FHA Loans", "FHA",
+     "FHA loans are government-insured mortgages that may be suitable for a range of borrowers, including some first-time homebuyers. Credit, down-payment and property requirements apply.",
+     "Government-insured financing that may suit a range of borrowers."),
+    ("va", "VA Loans", "VA",
+     "VA loan options are available to eligible veterans, service members and qualifying surviving spouses. Eligibility, entitlement and the specific transaction determine the available options.",
+     "Options for eligible veterans, service members and qualifying surviving spouses."),
+    ("usda", "USDA Loans", "USDA",
+     "USDA financing may be available to eligible borrowers purchasing qualifying properties in eligible areas. Household income, property location and program requirements apply.",
+     "Options for eligible borrowers and properties in qualifying areas."),
+    ("refinancing", "Refinancing", "Refinancing",
+     "Refinancing replaces an existing mortgage with a new loan. Whether it makes sense depends on your goals, available terms, costs and how long you expect to keep the loan.",
+     "Discuss whether replacing your existing mortgage may fit your goals."),
+    ("down-payment-assistance", "Down Payment Assistance", "Down Payment Assistance",
+     "Some eligible buyers may have access to assistance programs. Availability, funding, income limits, location and other conditions vary. Ask which programs may apply to your situation.",
+     "Ask about assistance programs that may be available to eligible buyers."),
 ]
-rows = "\n".join(f"""        <li class="%R__row" id="{slug}">
-          <h2 class="%R__h2">{name}</h2>
-          <p class="%R__p">{text}</p>
-        </li>""" for slug, name, text in PROGRAMS)
 
-page(
-    file="home-loans-loan-options.html", route="/loan-options", root="cbhl-loans",
-    title="Loan Options | Covered Bridge Home Loans",
-    meta="Learn about Conventional, FHA, VA and USDA loans, refinancing and down payment assistance, then discuss which options may fit with the Covered Bridge Home Loans team.",
-    css=["base", "phero", "figure", "rows"],
-    body=f"""{phero("title", "Loan Options", "Understand your home-loan options.",
-       "The right starting point depends on your goals, finances, property and eligibility. Explore the main program categories, then discuss the details with the team.",
-       image="houseKeys")}
-
-  <section class="%R__section" aria-label="Loan programs">
-    <div class="%R__inner">
-      <ul class="%R__rows">
-{rows}
-      </ul>
-    </div>
-  </section>
-
-{cta("start", "Not sure where to start?", "You do not need to choose a program before speaking with the team. Start by explaining your plans and asking which options may fit.", label="Discuss Your Options")}
-
-{disclaimer()}""",
-)
-
-# ---------- 3. How It Works ----------
-STEPS = [
-    ("Discuss your plans",
-     "Talk about your purchase or refinance goals, timing and financial circumstances.", ""),
-    ("Complete the appropriate application",
-     "When you are ready, use the designated application process and provide the requested information. An inquiry alone is not a completed mortgage application or approval.",
-     '\n              <p hidden data-hl-apply><a class="%R__link" data-hl-apply-link>Start your application' + ARROW + '</a></p>'),
-    ("Prepare your documents",
-     "Gather the income, asset, identification and property information requested for your situation.", ""),
-    ("Move through review",
-     "Depending on your transaction, the process may include disclosures, processing, property valuation, underwriting and requests for additional information.", ""),
-    ("Prepare for closing",
-     "If the loan is approved and closing conditions are satisfied, review the final documents and complete the required closing steps.", ""),
-]
-steps = "\n".join(f"""        <li class="%R__step">
-          <span class="%R__step-num" aria-hidden="true">{i}</span>
-          <div class="%R__step-body">
-            <h3 class="%R__h3"><span class="%R__sr">Step {i}: </span>{t}</h3>
-            <p class="%R__p">{p}</p>{extra}
-          </div>
-        </li>""" for i, (t, p, extra) in enumerate(STEPS, 1))
-
-SR_CSS = """
-  .%R .%R__sr {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-"""
-CSS["base"] += SR_CSS
-
-page(
-    file="home-loans-how-it-works.html", route="/how-it-works", root="cbhl-how",
-    title="How the Home Loan Process Works | Covered Bridge Home Loans",
-    meta="Understand the main stages of a home loan, from your first conversation and application to documents, review and closing, so you can prepare for each step.",
-    css=["base", "phero", "figure", "steps", "split", "points"],
-    apply=True,
-    body=f"""{phero("title", "How It Works", "Know what comes next.",
-       "Every home-loan situation is different, but understanding the main stages can help you prepare.",
-       image="consultation")}
-
-  <section class="%R__section" aria-labelledby="%R-stages">
-    <div class="%R__inner">
-      <header class="%R__header">
-        {eyebrow("The Main Stages")}
-        <h2 class="%R__h2" id="%R-stages">From first conversation to closing</h2>
-      </header>
-      <ol class="%R__steps">
-{steps}
-      </ol>
-    </div>
-  </section>
-
-  <section class="%R__section %R__section--surface" aria-labelledby="%R-moving">
-    <div class="%R__inner %R__split">
-      <div>
-        {eyebrow("Along the Way")}
-        <h2 class="%R__h2" id="%R-moving">Keep the process moving</h2>
-      </div>
-{points([
-    "Respond to document requests promptly.",
-    "Ask about anything you do not understand.",
-    "Discuss significant financial changes with your loan professional while the loan is in progress.",
-])}
-    </div>
-  </section>
-
-{cta("closing", "Start with your questions.")}
-
-{disclaimer()}""",
-)
-
-# ---------- 4. Homebuyer Resources ----------
-GLOSSARY = [
-    ("Down Payment", "The portion of the purchase price paid upfront rather than financed through the mortgage."),
-    ("Earnest Money", "A deposit made as part of a purchase agreement. Its treatment depends on the contract and closing arrangements."),
-    ("Appraisal", "An assessment of property value used in the financing process. It serves a different purpose from a home inspection."),
-    ("Mortgage Insurance", "Insurance required with some loan arrangements. Its cost and cancellation rules depend on the loan type and applicable requirements."),
-    ("Escrow", "An arrangement used with some mortgages to collect funds for expenses such as property taxes and homeowners insurance."),
-    ("Closing Costs", "Transaction expenses associated with completing a purchase or refinance. Ask for an explanation of the costs relevant to your loan."),
-]
-gloss = "\n".join(f"""        <div>
-          <dt>{t}</dt>
-          <dd>{d}</dd>
-        </div>""" for t, d in GLOSSARY)
-
-page(
-    file="home-loans-resources.html", route="/homebuyer-resources", root="cbhl-res",
-    title="Homebuyer Resources | Covered Bridge Home Loans",
-    meta="Commonly requested mortgage documents, plain-language mortgage terms and questions worth asking before your home-loan conversation.",
-    css=["base", "phero", "figure", "cols", "gloss", "split", "points", "callout"],
-    body=f"""{phero("title", "Homebuyer Resources", "A little preparation goes a long way.",
-       "Use these starting points to organize your questions and prepare for a conversation about your mortgage.")}
-
-  <section class="%R__section" aria-labelledby="%R-docs">
-    <div class="%R__inner">
-      <header class="%R__header">
-        {eyebrow("Documents")}
-        <h2 class="%R__h2" id="%R-docs">Documents commonly requested</h2>
-        <p class="%R__p">The exact documents depend on your circumstances and the loan program. Your loan professional will explain what is needed.</p>
-      </header>
-      <ul class="%R__cols">
-        <li class="%R__col">
-          <h3 class="%R__h3">Employed / W-2 Borrowers</h3>
-          <p class="%R__p %R__p--sm">Common requests may include identification, recent pay statements, W-2 forms and account statements for funds used in the transaction.</p>
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Self-Employed Borrowers</h3>
-          <p class="%R__p %R__p--sm">Common requests may include identification, tax returns, business or income documentation and relevant account statements.</p>
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Retired / Fixed-Income Borrowers</h3>
-          <p class="%R__p %R__p--sm">Common requests may include identification, pension or Social Security award information and relevant account statements.</p>
-        </li>
-      </ul>
-      <p class="%R__note">These are general examples, not a complete application checklist. Additional documents may be requested.</p>
-      <div class="%R__callout %R__callout--spaced" role="note">
-        {SHIELD}
-        <div>
-          <h3 class="%R__h3">Security note</h3>
-          <p class="%R__p %R__p--sm">Do not send identification, tax returns, bank statements or other sensitive documents through a general website inquiry. Use the designated document-submission process when instructed.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="%R__section %R__section--surface" aria-labelledby="%R-terms">
-    <div class="%R__inner">
-      <header class="%R__header">
-        {eyebrow("Terms")}
-        <h2 class="%R__h2" id="%R-terms">Mortgage terms in plain language</h2>
-      </header>
-      <dl class="%R__gloss">
-{gloss}
-      </dl>
-    </div>
-  </section>
-
-  <section class="%R__section" aria-labelledby="%R-questions">
-    <div class="%R__inner %R__split %R__split--center">
-      <div>
-        {eyebrow("Your Conversation")}
-        <h2 class="%R__h2" id="%R-questions">Questions worth asking</h2>
-{points([
-    "Which programs might fit my circumstances?",
-    "What upfront funds should I prepare?",
-    "What costs and mortgage-insurance requirements apply?",
-    "Which documents are needed?",
-    "What could affect the timeline?",
-    "What should I understand before accepting the loan terms?",
-])}
-      </div>
-      {figure("houseKeys")}
-    </div>
-  </section>
-
-{cta("closing", "Have a question about your situation?", label="Ask the Team")}
-
-{disclaimer()}""",
-)
-
-# ---------- 5. FAQs ----------
 FAQS = [
     ("How do I know which loan is right for me?",
      "The appropriate options depend on your finances, goals, property and program eligibility. Start with a conversation rather than choosing a program based on one advertised feature."),
@@ -1387,46 +1375,399 @@ FAQS = [
     ("How do I get started?",
      'Use the <a href="/contact">Contact page</a> to share your questions and request a conversation.'),
 ]
-faqs = "\n".join(f"""        <details>
-          <summary>{q}</summary>
-          <div class="%R__faq-body">
-            <p class="%R__p">{a}</p>
-          </div>
-        </details>""" for q, a in FAQS)
+FAQ = dict(FAQS)
+
+PAGES = []
+
+
+def page(**kw):
+    PAGES.append(kw)
+
+
+# ===========================================================================
+# 1. Home (template section order)
+# ===========================================================================
+cards = "\n".join(f"""        <li class="%R__card">
+          <h3 class="%R__card-tab">{short}</h3>
+          <p class="%R__p %R__p--sm">{summary}</p>
+          {btn("/loan-options#" + slug, "Learn More", small=True, label="Learn more about " + name)}
+        </li>""" for slug, name, short, _, summary in PROGRAMS)
+
+home_faqs = faq_items([
+    ("Which loan option might fit my circumstances?", FAQ["How do I know which loan is right for me?"]),
+    ("How much will I need for a down payment?", FAQ["How much will I need for a down payment?"]),
+    ("What documents should I prepare?", FAQ["What documents should I prepare?"]),
+    ("How long does the mortgage process take?", FAQ["How long does the mortgage process take?"]),
+], first_open=True)
 
 page(
-    file="home-loans-faqs.html", route="/faqs", root="cbhl-faq",
-    title="Home Loan FAQs | Covered Bridge Home Loans",
-    meta="Answers to common questions about loan options, down payments, credit, documents, timing, appraisals, mortgage payments and refinancing.",
-    css=["base", "phero", "faq"],
-    body=f"""{phero("title", "FAQs", "Your home-loan questions, answered.",
-       "Clear starting points for your homebuying or refinancing conversation.")}
-
-  <section class="%R__section" aria-label="Frequently asked questions">
-    <div class="%R__inner">
-      <div class="%R__faq">
-{faqs}
+    file="home-loans-home.html", route="/", root="cbhl-home",
+    title="Covered Bridge Home Loans | Home Purchase &amp; Refinancing Guidance",
+    meta="Explore home purchase and refinancing options with Covered Bridge Home Loans, including Conventional, FHA, VA and USDA loans, with guidance through the mortgage process.",
+    css=["base", "hero", "comp", "benefits", "cards", "steps", "resource", "faq"],
+    body=f"""  <!-- A. Photographic hero -->
+  <section class="%R__hero" aria-labelledby="%R-title">
+    {img("hero", "%R__hero-img", eager=True)}
+    <div class="%R__hero-shade" aria-hidden="true"></div>
+    <div class="%R__in">
+      <div class="%R__hero-copy">
+        {eyebrow("Home Purchase &amp; Refinancing")}
+        <h1 class="%R__h1" id="%R-title">Your next chapter starts at home.</h1>
+        <p class="%R__lede">Whether you&rsquo;re buying your first home, planning your next move or exploring refinancing, Covered Bridge Home Loans helps you understand your options and take the next step with confidence.</p>
+        <div class="%R__actions">
+          {btn("/contact", CTA_LABEL)}
+          {link("/loan-options", "Explore Loan Options")}
+        </div>
       </div>
     </div>
   </section>
 
-{cta("closing", "Still have questions?")}
+  <!-- B. Overlapping question panel -->
+  <section class="%R__panel-band" aria-label="Get started">
+    <div class="%R__panel">
+      <div class="%R__panel-col">
+        <h2 class="%R__h2">Questions about your next move?</h2>
+        <p class="%R__p %R__p--sm">Start with a conversation about buying, refinancing or understanding your home-loan options.</p>
+        {link("/contact", "Ask the Team")}
+      </div>
+      <div class="%R__panel-col">
+        <h2 class="%R__h2">Explore your options.</h2>
+        <p class="%R__p %R__p--sm">Find a starting point that fits your plans.</p>
+        {btn("/loan-options", "View Loan Options", small=True)}
+      </div>
+    </div>
+  </section>
 
-{disclaimer()}""",
+  <!-- C. Introduction with overlapping photos -->
+  <section class="%R__s %R__s--white" aria-labelledby="%R-who">
+    <div class="%R__in %R__split">
+      <div class="%R__comp">
+        {img("couplePlanning", "%R__comp-a")}
+        {img("advisor", "%R__comp-b")}
+        <p class="%R__comp-badge" aria-hidden="true">Guidance for your next chapter</p>
+      </div>
+      <div>
+        {eyebrow("Who We Are")}
+        <h2 class="%R__h2" id="%R-who">Home financing starts with understanding your plans.</h2>
+        <p class="%R__p">A home loan is a personal decision. Covered Bridge Home Loans helps you explore potential options, prepare the requested information and understand the next steps in the mortgage process.</p>
+        <div class="%R__actions">
+          {btn("/about", "About Covered Bridge Home Loans")}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- D. Dark benefits band -->
+  <section class="%R__s %R__s--dark" aria-labelledby="%R-benefits">
+    {lines_svg("%R__lines %R__lines--bl")}
+    {lines_svg("%R__lines %R__lines--br")}
+    <div class="%R__in">
+      <div class="%R__center">
+        {eyebrow("A Clearer Path Forward")}
+        <h2 class="%R__h2" id="%R-benefits">Support for your <span class="%R__gold">homeownership</span> journey.</h2>
+      </div>
+      <ul class="%R__icons">
+        <li><span class="%R__icon">{ICON_PURCHASE}</span><span>Home Purchase</span></li>
+        <li><span class="%R__icon">{ICON_REFI}</span><span>Refinancing</span></li>
+        <li><span class="%R__icon">{ICON_OPTIONS}</span><span>Loan Options</span></li>
+      </ul>
+      <hr class="%R__divider">
+      <div class="%R__benefit-grid">
+        <ul class="%R__checks">
+          <li>{CHECK}<div><h3 class="%R__h3">Clear Communication</h3><p class="%R__p %R__p--sm">Understand the questions, information and next steps relevant to your situation.</p></div></li>
+          <li>{CHECK}<div><h3 class="%R__h3">Individual Circumstances</h3><p class="%R__p %R__p--sm">Discuss financing in the context of your goals, finances and property.</p></div></li>
+          <li>{CHECK}<div><h3 class="%R__h3">Informed Decisions</h3><p class="%R__p %R__p--sm">Take time to understand the terms, costs and responsibilities before moving forward.</p></div></li>
+        </ul>
+        <div>
+          <h3 class="%R__h2">Start with your goals.</h3>
+          <p class="%R__p">Whether you are preparing for a purchase or considering a refinance, begin by explaining what you want to accomplish.</p>
+          {link("/how-it-works", "See How It Works")}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- E. Loan-option cards -->
+  <section class="%R__s" aria-labelledby="%R-options">
+    <div class="%R__in">
+      <div class="%R__cards-head">
+        <div>
+          {eyebrow("Loan Options")}
+          <h2 class="%R__h2" id="%R-options">Different paths. One important decision.</h2>
+        </div>
+        <p class="%R__p">Explore the main program categories, then discuss which options may fit your circumstances.</p>
+      </div>
+      <ul class="%R__cards">
+{cards}
+      </ul>
+    </div>
+  </section>
+
+  <!-- F. Overlapping photos and numbered process -->
+  <section class="%R__s %R__s--white" aria-labelledby="%R-how">
+    <div class="%R__in %R__split">
+      <div class="%R__comp %R__comp--process">
+        {img("familyMoving", "%R__comp-a")}
+        {img("advisor", "%R__comp-b")}
+      </div>
+      <div>
+        {eyebrow("How It Works")}
+        <h2 class="%R__h2" id="%R-how">Know what comes next.</h2>
+{step_list([
+    ("Start a conversation", "Discuss your purchase or refinance goals and initial questions.", ""),
+    ("Prepare and apply", "Use the designated application process and gather the information requested for your situation.", ""),
+    ("Move through review", "Understand the processing, underwriting and closing steps that apply to your transaction.", ""),
+])}
+        <div class="%R__actions">
+          {link("/how-it-works", "Explore the Full Process")}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- G. Resources: prepare with confidence -->
+  <section class="%R__s %R__s--band %R__s--tight" aria-labelledby="%R-prepare">
+    <div class="%R__in %R__res">
+      <div>
+        <h2 class="%R__h2" id="%R-prepare">Prepare with confidence.</h2>
+        <p class="%R__p">Explore common mortgage questions and the documents that may be requested for your situation.</p>
+      </div>
+      <ul class="%R__tiles">
+        <li><a class="%R__tile" href="/homebuyer-resources">Homebuyer Resources{ARROW}</a></li>
+        <li><a class="%R__tile" href="/faqs">Frequently Asked Questions{ARROW}</a></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- H. FAQ preview -->
+  <section class="%R__s %R__s--white" aria-labelledby="%R-faq">
+    <div class="%R__in">
+      <div class="%R__head %R__center">
+        {eyebrow("FAQs")}
+        <h2 class="%R__h2" id="%R-faq">Frequently asked questions</h2>
+      </div>
+      <div class="%R__faq">
+{home_faqs}
+      </div>
+      <div class="%R__actions %R__center">
+        {link("/faqs", "View All FAQs")}
+      </div>
+    </div>
+  </section>""",
 )
 
-# ---------- 6. About ----------
+# ===========================================================================
+# 2. Loan Options
+# ===========================================================================
+programs = "\n\n".join(f"""  <section class="%R__s{' %R__s--white' if i % 2 else ''} %R__s--tight" id="{slug}" aria-labelledby="%R-{slug}">
+    <div class="%R__in %R__program">
+      <div>
+        <span class="%R__program-num" aria-hidden="true">{i + 1:02d}</span>
+        <h2 class="%R__h2" id="%R-{slug}">{name}</h2>
+      </div>
+      <p class="%R__p">{text}</p>
+    </div>
+  </section>""" for i, (slug, name, _, text, _) in enumerate(PROGRAMS))
+
+page(
+    file="home-loans-loan-options.html", route="/loan-options", root="cbhl-loans",
+    title="Loan Options | Covered Bridge Home Loans",
+    meta="Learn about Conventional, FHA, VA and USDA loans, refinancing and down payment assistance, then discuss which options may fit with the Covered Bridge Home Loans team.",
+    css=["base", "banner", "photo", "rows"],
+    body=f"""{banner("title", "Loan Options", "Understand your home-loan options.",
+       "The right starting point depends on your goals, finances, property and eligibility. Explore the main program categories, then discuss the details with the team.",
+       media=photo("resources", eager=True))}
+
+{programs}
+
+{cta("start", "Not sure where to start?", "You do not need to choose a program before speaking with the team. Start by explaining your plans and asking which options may fit.", label="Discuss Your Options")}""",
+)
+
+# ===========================================================================
+# 3. How It Works
+# ===========================================================================
+APPLY_LINK = '\n              <p hidden data-hl-apply><a class="%R__link" data-hl-apply-link>Start your application' + ARROW + '</a></p>'
+
+page(
+    file="home-loans-how-it-works.html", route="/how-it-works", root="cbhl-how",
+    title="How the Home Loan Process Works | Covered Bridge Home Loans",
+    meta="Understand the main stages of a home loan, from your first conversation and application to documents, review and closing, so you can prepare for each step.",
+    css=["base", "banner", "photo", "steps", "lists", "stages"],
+    apply=True,
+    body=f"""{banner("title", "How It Works", "Know what comes next.",
+       "Every home-loan situation is different, but understanding the main stages can help you prepare.", dark=True)}
+
+  <section class="%R__s %R__s--white" aria-labelledby="%R-stages">
+    <div class="%R__in %R__stage-grid">
+      <div class="%R__stage-media">
+        {photo("advisor", tall=True)}
+      </div>
+      <div>
+        {eyebrow("The Main Stages")}
+        <h2 class="%R__h2" id="%R-stages">From first conversation to closing</h2>
+{step_list([
+    ("Discuss your plans", "Talk about your purchase or refinance goals, timing and financial circumstances.", ""),
+    ("Complete the appropriate application", "When you are ready, use the designated application process and provide the requested information. An inquiry alone is not a completed mortgage application or approval.", APPLY_LINK),
+    ("Prepare your documents", "Gather the income, asset, identification and property information requested for your situation.", ""),
+    ("Move through review", "Depending on your transaction, the process may include disclosures, processing, property valuation, underwriting and requests for additional information.", ""),
+    ("Prepare for closing", "If the loan is approved and closing conditions are satisfied, review the final documents and complete the required closing steps.", ""),
+], extra_cls=" %R__steps--large", small=False)}
+      </div>
+    </div>
+  </section>
+
+  <section class="%R__s" aria-labelledby="%R-moving">
+    <div class="%R__in %R__stage-grid %R__stage-grid--even">
+      <div>
+        {eyebrow("Along the Way")}
+        <h2 class="%R__h2" id="%R-moving">Keep the process moving</h2>
+      </div>
+{points([
+    "Respond to document requests promptly.",
+    "Ask about anything you do not understand.",
+    "Discuss significant financial changes with your loan professional while the loan is in progress.",
+], indent="      ")}
+    </div>
+  </section>
+
+{cta("closing", "Start with your questions.")}""",
+)
+
+# ===========================================================================
+# 4. Homebuyer Resources
+# ===========================================================================
+GLOSSARY = [
+    ("Down Payment", "The portion of the purchase price paid upfront rather than financed through the mortgage."),
+    ("Earnest Money", "A deposit made as part of a purchase agreement. Its treatment depends on the contract and closing arrangements."),
+    ("Appraisal", "An assessment of property value used in the financing process. It serves a different purpose from a home inspection."),
+    ("Mortgage Insurance", "Insurance required with some loan arrangements. Its cost and cancellation rules depend on the loan type and applicable requirements."),
+    ("Escrow", "An arrangement used with some mortgages to collect funds for expenses such as property taxes and homeowners insurance."),
+    ("Closing Costs", "Transaction expenses associated with completing a purchase or refinance. Ask for an explanation of the costs relevant to your loan."),
+]
+gloss = "\n".join(f"""        <div>
+          <dt>{t}</dt>
+          <dd>{d}</dd>
+        </div>""" for t, d in GLOSSARY)
+
+DOCS = [
+    ("Employed / W-2 Borrowers",
+     "Common requests may include identification, recent pay statements, W-2 forms and account statements for funds used in the transaction."),
+    ("Self-Employed Borrowers",
+     "Common requests may include identification, tax returns, business or income documentation and relevant account statements."),
+    ("Retired / Fixed-Income Borrowers",
+     "Common requests may include identification, pension or Social Security award information and relevant account statements."),
+]
+docs = "\n".join(f"""        <li class="%R__card">
+          <h3 class="%R__card-tab">{t}</h3>
+          <p class="%R__p %R__p--sm">{d}</p>
+        </li>""" for t, d in DOCS)
+
+page(
+    file="home-loans-resources.html", route="/homebuyer-resources", root="cbhl-res",
+    title="Homebuyer Resources | Covered Bridge Home Loans",
+    meta="Commonly requested mortgage documents, plain-language mortgage terms and questions worth asking before your home-loan conversation.",
+    css=["base", "banner", "photo", "cards", "gloss", "lists"],
+    body=f"""{banner("title", "Homebuyer Resources", "A little preparation goes a long way.",
+       "Use these starting points to organize your questions and prepare for a conversation about your mortgage.",
+       media=photo("resources", eager=True))}
+
+  <section class="%R__s %R__s--white" aria-labelledby="%R-docs">
+    <div class="%R__in">
+      <div class="%R__head">
+        {eyebrow("Documents")}
+        <h2 class="%R__h2" id="%R-docs">Documents commonly requested</h2>
+        <p class="%R__p">The exact documents depend on your circumstances and the loan program. Your loan professional will explain what is needed.</p>
+      </div>
+      <ul class="%R__cards %R__cards--plain">
+{docs}
+      </ul>
+      <p class="%R__note">These are general examples, not a complete application checklist. Additional documents may be requested.</p>
+      <div class="%R__callout" role="note">
+        {SHIELD}
+        <div>
+          <h3 class="%R__h3">Security note</h3>
+          <p class="%R__p %R__p--sm">Do not send identification, tax returns, bank statements or other sensitive documents through a general website inquiry. Use the designated document-submission process when instructed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="%R__s" aria-labelledby="%R-terms">
+    <div class="%R__in">
+      <div class="%R__head">
+        {eyebrow("Terms")}
+        <h2 class="%R__h2" id="%R-terms">Mortgage terms in plain language</h2>
+      </div>
+      <dl class="%R__gloss">
+{gloss}
+      </dl>
+    </div>
+  </section>
+
+  <section class="%R__s %R__s--white" aria-labelledby="%R-questions">
+    <div class="%R__in %R__narrow">
+      {eyebrow("Your Conversation")}
+      <h2 class="%R__h2" id="%R-questions">Questions worth asking</h2>
+{points([
+    "Which programs might fit my circumstances?",
+    "What upfront funds should I prepare?",
+    "What costs and mortgage-insurance requirements apply?",
+    "Which documents are needed?",
+    "What could affect the timeline?",
+    "What should I understand before accepting the loan terms?",
+], indent="      ")}
+    </div>
+  </section>
+
+{cta("closing", "Have a question about your situation?", label="Ask the Team")}""",
+)
+
+# ===========================================================================
+# 5. FAQs
+# ===========================================================================
+page(
+    file="home-loans-faqs.html", route="/faqs", root="cbhl-faq",
+    title="Home Loan FAQs | Covered Bridge Home Loans",
+    meta="Answers to common questions about loan options, down payments, credit, documents, timing, appraisals, mortgage payments and refinancing.",
+    css=["base", "banner", "faq"],
+    body=f"""{banner("title", "FAQs", "Your home-loan questions, answered.",
+       "Clear starting points for your homebuying or refinancing conversation.", center=True)}
+
+  <section class="%R__s %R__s--white" aria-label="Frequently asked questions">
+    <div class="%R__in">
+      <div class="%R__faq">
+{faq_items(FAQS)}
+      </div>
+    </div>
+  </section>
+
+{cta("closing", "Still have questions?")}""",
+)
+
+# ===========================================================================
+# 6. About
+# ===========================================================================
 page(
     file="home-loans-about.html", route="/about", root="cbhl-about",
     title="About | Covered Bridge Home Loans",
     meta="Covered Bridge Home Loans helps individuals and families explore mortgage options for buying or refinancing a home. Part of Covered Bridge Brands.",
-    css=["base", "phero", "figure", "cols"],
-    body=f"""{phero("title", "About", "Guidance for one of life&rsquo;s important decisions.",
-       "Covered Bridge Home Loans helps individuals and families explore mortgage options for buying or refinancing a home.",
-       image="consultation")}
+    css=["base", "comp", "benefits"],
+    body=f"""  <section class="%R__s %R__s--band" aria-labelledby="%R-title">
+    <div class="%R__in %R__split">
+      <div class="%R__comp %R__comp--landscape">
+        {img("couplePlanning", "%R__comp-a", eager=True)}
+        {img("consultation", "%R__comp-b")}
+      </div>
+      <div>
+        {eyebrow("About")}
+        <h1 class="%R__h1" id="%R-title">Guidance for one of life&rsquo;s important decisions.</h1>
+        <p class="%R__lede">Covered Bridge Home Loans helps individuals and families explore mortgage options for buying or refinancing a home.</p>
+      </div>
+    </div>
+  </section>
 
-  <section class="%R__section" aria-labelledby="%R-approach">
-    <div class="%R__inner %R__narrow">
+  <section class="%R__s %R__s--white" aria-labelledby="%R-approach">
+    <div class="%R__in %R__narrow">
       {eyebrow("Our Approach")}
       <h2 class="%R__h2" id="%R-approach">Your home. Your plans. A clearer next step.</h2>
       <p class="%R__p">A home loan is a personal decision. Your circumstances, questions and priorities matter.</p>
@@ -1435,57 +1776,73 @@ page(
     </div>
   </section>
 
-  <section class="%R__section %R__section--surface" aria-labelledby="%R-values">
-    <div class="%R__inner">
-      <header class="%R__header">
+  <section class="%R__s %R__s--dark" aria-labelledby="%R-values">
+    {lines_svg("%R__lines %R__lines--bl")}
+    <div class="%R__in">
+      <div class="%R__center">
         {eyebrow("What We Value")}
         <h2 class="%R__h2" id="%R-values">What matters along the way</h2>
-      </header>
-      <ul class="%R__cols">
-        <li class="%R__col">
-          <h3 class="%R__h3">Clear Communication</h3>
-          <p class="%R__p %R__p--sm">Understand the questions, information and next steps relevant to your situation.</p>
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Individual Circumstances</h3>
-          <p class="%R__p %R__p--sm">Discuss financing in the context of your goals, finances and property.</p>
-        </li>
-        <li class="%R__col">
-          <h3 class="%R__h3">Informed Decisions</h3>
-          <p class="%R__p %R__p--sm">Take time to understand the terms, costs and responsibilities before moving forward.</p>
-        </li>
+      </div>
+      <ul class="%R__icons">
+        <li><span class="%R__icon">{ICON_TALK}</span><span><span class="%R__value-title">Clear Communication</span><span class="%R__value-text">Understand the questions, information and next steps relevant to your situation.</span></span></li>
+        <li><span class="%R__icon">{ICON_PERSON}</span><span><span class="%R__value-title">Individual Circumstances</span><span class="%R__value-text">Discuss financing in the context of your goals, finances and property.</span></span></li>
+        <li><span class="%R__icon">{ICON_DECIDE}</span><span><span class="%R__value-title">Informed Decisions</span><span class="%R__value-text">Take time to understand the terms, costs and responsibilities before moving forward.</span></span></li>
       </ul>
     </div>
   </section>
 
-  <section class="%R__section" aria-labelledby="%R-family">
-    <div class="%R__inner %R__narrow">
+  <section class="%R__s" aria-labelledby="%R-family">
+    <div class="%R__in %R__narrow %R__center">
       {eyebrow("Our Family of Brands")}
       <h2 class="%R__h2" id="%R-family">Part of Covered Bridge Brands</h2>
       <p class="%R__p">Covered Bridge Home Loans is part of the Covered Bridge Brands family.</p>
-      <p class="%R__p">{link("https://coveredbridgebrands.com/", "Visit Covered Bridge Brands")}</p>
+      <div class="%R__actions">
+        {link("https://coveredbridgebrands.com/", "Visit Covered Bridge Brands")}
+      </div>
     </div>
   </section>
 
 {cta("closing", "Tell us about your next chapter.")}""",
 )
 
-# ---------- 7. Contact ----------
+# ===========================================================================
+# 7. Contact
+# ===========================================================================
 page(
     file="home-loans-contact.html", route="/contact", root="cbhl-contact",
     title="Contact | Covered Bridge Home Loans",
     meta="Buying, refinancing or simply exploring? Share your questions and start a conversation with Covered Bridge Home Loans.",
-    css=["base", "phero", "contact"],
+    css=["base", "banner", "photo", "contact"],
     apply=True,
-    body=f"""{phero("title", "Contact", "Let&rsquo;s talk about your home-loan plans.",
+    body=f"""{banner("title", "Contact", "Let&rsquo;s talk about your home-loan plans.",
        "Buying, refinancing or simply exploring? Share a few initial details and your questions.")}
 
-  <section class="%R__section" aria-labelledby="%R-inquiry">
-    <div class="%R__inner %R__contact">
-      <div class="%R__contact-copy">
+  <section class="%R__s %R__s--white" aria-labelledby="%R-inquiry">
+    <div class="%R__in %R__contact">
+      <div>
+        {photo("consultation")}
+      </div>
+      <div>
         {eyebrow("Inquiry")}
         <h2 class="%R__h2" id="%R-inquiry">Start a Conversation</h2>
         <p class="%R__p">Tell us what you are planning so the team can help you understand the appropriate next step.</p>
+        <div class="%R__form" aria-label="Inquiry form"><!--
+          >>> GHL FORM EMBED GOES HERE (integration dependency) <<<
+          Paste the native Covered Bridge Home Loans GHL form's embed code
+          between this comment and the closing </div>. While this box is
+          empty it is hidden, so visitors never see an empty panel.
+
+          Intended fields:
+            Full name (required) · Email (required) · Phone (optional)
+            What can we help with? (required): Buying a Home / Refinancing /
+              Exploring Loan Options / General Question
+            Property state, if known (optional) · Brief message (optional)
+          Do NOT collect: SSN, date of birth, credit score, income or account
+          details, identification files, tax returns or bank statements.
+          Add any required communication-consent wording in the GHL form
+          itself; no credit-check authorization, bundled marketing consent
+          or SMS enrollment.
+        --></div>
         <ul class="%R__notices">
           <li>{SHIELD}<span>Please do not include sensitive financial or identification information. This form is for general inquiries and is not a mortgage application.</span></li>
           <li>{INFO}<span>See our <a href="/privacy-policy">Privacy Policy</a> for information about how inquiry details are handled.</span></li>
@@ -1494,44 +1851,26 @@ page(
           <h3 class="%R__h3">Ready to apply?</h3>
           <p class="%R__p %R__p--sm">If you&rsquo;re ready to begin a mortgage application, use the online application.</p>
           <div class="%R__actions">
-            <a class="%R__btn %R__btn--outline" data-hl-apply-link>Start Your Application</a>
+            <a class="%R__btn %R__btn--sm" data-hl-apply-link>Start Your Application{ARROW}</a>
           </div>
         </div>
       </div>
-      <div class="%R__form" aria-label="Inquiry form"><!--
-        >>> GHL FORM EMBED GOES HERE (integration dependency) <<<
-        Paste the native Covered Bridge Home Loans GHL form's embed code
-        between this comment and the closing </div>. While this box is
-        empty it is hidden, so visitors never see an empty panel.
-
-        Intended fields:
-          Full name (required) · Email (required) · Phone (optional)
-          What can we help with? (required): Buying a Home / Refinancing /
-            Exploring Loan Options / General Question
-          Property state, if known (optional) · Brief message (optional)
-        Do NOT collect: SSN, date of birth, credit score, income or account
-        details, identification files, tax returns or bank statements.
-        Add any required communication-consent wording in the GHL form
-        itself; no credit-check authorization, bundled marketing consent
-        or SMS enrollment.
-      --></div>
     </div>
-  </section>
-
-{disclaimer()}""",
+  </section>""",
 )
 
-# ---------- 8. Privacy Policy (draft) ----------
+# ===========================================================================
+# 8–9. Legal drafts
+# ===========================================================================
 def legal_sections(items):
     out = []
     for i, (title, text, review) in enumerate(items, 1):
         body = f'\n        <p class="%R__p">{text}</p>' if text else ""
-        if review:
-            if isinstance(review, list):
-                lis = "".join(f"<li>{r}</li>" for r in review)
-                rv = f'\n        <div class="%R__review"><strong>Review:</strong><ul>{lis}</ul></div>'
-            else:
-                rv = f'\n        <p class="%R__review"><strong>Review:</strong> {review}</p>'
+        if isinstance(review, list):
+            lis = "".join(f"<li>{r}</li>" for r in review)
+            rv = f'\n        <div class="%R__review"><strong>Review:</strong><ul>{lis}</ul></div>'
+        elif review:
+            rv = f'\n        <p class="%R__review"><strong>Review:</strong> {review}</p>'
         else:
             rv = ""
         out.append(f"""      <section class="%R__legal-sec" aria-labelledby="%R-s{i}">
@@ -1565,34 +1904,6 @@ PRIVACY = [
      "Supply the approved effective date, responsible entity and contact information."),
 ]
 
-LEGAL_COMMENT = """<!-- LEGAL DRAFT: not ready to publish. The review notes below are
-     intentionally visible while this page is a draft. Replace each
-     one with approved wording (or remove it) after legal review, and
-     remove the draft status line when the page is approved. -->"""
-
-page(
-    file="home-loans-privacy-policy-draft.html", route="/privacy-policy", root="cbhl-privacy",
-    title="Privacy Policy | Covered Bridge Home Loans",
-    meta="Privacy Policy for the Covered Bridge Home Loans website and its general inquiry process.",
-    css=["base", "phero", "legal"],
-    body=f"""  {LEGAL_COMMENT}
-  <section class="%R__phero" aria-labelledby="%R-title">
-    <div class="%R__inner %R__legal">
-      {eyebrow("Legal")}
-      <h1 class="%R__h1" id="%R-title">Privacy Policy</h1>
-      <p class="%R__lede">This draft identifies the privacy information to be confirmed for the Covered Bridge Home Loans website and its general inquiry process.</p>
-      <p class="%R__status" role="note">Draft &mdash; business identity and data practices require confirmation before publication.</p>
-    </div>
-  </section>
-
-  <div class="%R__section">
-    <div class="%R__inner %R__legal">
-{legal_sections(PRIVACY)}
-    </div>
-  </div>""",
-)
-
-# ---------- 9. Terms of Use (draft) ----------
 TERMS = [
     ("Website purpose",
      "This website provides general information about home-loan options and a way to make an inquiry.", ""),
@@ -1619,33 +1930,57 @@ TERMS = [
       "Obtain any necessary additional legal provisions."]),
 ]
 
+LEGAL_COMMENT = """<!-- LEGAL DRAFT: not ready to publish. The review notes below are
+     intentionally visible while this page is a draft. Replace each
+     one with approved wording (or remove it) after legal review, and
+     remove the draft status line when the page is approved. -->"""
+
+
+def legal_page(title, status, sections, opening=""):
+    open_p = f'\n      <p class="%R__lede">{opening}</p>' if opening else ""
+    return f"""  {LEGAL_COMMENT}
+  <section class="%R__banner" aria-labelledby="%R-title">
+    <div class="%R__in %R__legal">
+      {eyebrow("Legal")}
+      <h1 class="%R__h1" id="%R-title">{title}</h1>{open_p}
+      <p class="%R__status" role="note">{status}</p>
+    </div>
+  </section>
+
+  <div class="%R__s %R__s--white">
+    <div class="%R__in %R__legal">
+{legal_sections(sections)}
+    </div>
+  </div>"""
+
+
+page(
+    file="home-loans-privacy-policy-draft.html", route="/privacy-policy", root="cbhl-privacy",
+    title="Privacy Policy | Covered Bridge Home Loans",
+    meta="Privacy Policy for the Covered Bridge Home Loans website and its general inquiry process.",
+    css=["base", "banner", "legal"],
+    body=legal_page("Privacy Policy",
+                    "Draft &mdash; business identity and data practices require confirmation before publication.",
+                    PRIVACY,
+                    "This draft identifies the privacy information to be confirmed for the Covered Bridge Home Loans website and its general inquiry process."),
+)
+
 page(
     file="home-loans-terms-draft.html", route="/terms", root="cbhl-terms",
     title="Terms of Use | Covered Bridge Home Loans",
     meta="Terms of Use for the Covered Bridge Home Loans website.",
-    css=["base", "phero", "legal"],
-    body=f"""  {LEGAL_COMMENT}
-  <section class="%R__phero" aria-labelledby="%R-title">
-    <div class="%R__inner %R__legal">
-      {eyebrow("Legal")}
-      <h1 class="%R__h1" id="%R-title">Terms of Use</h1>
-      <p class="%R__status" role="note">Draft &mdash; legal identity and applicable terms require confirmation before publication.</p>
-    </div>
-  </section>
-
-  <div class="%R__section">
-    <div class="%R__inner %R__legal">
-{legal_sections(TERMS)}
-    </div>
-  </div>""",
+    css=["base", "banner", "legal"],
+    body=legal_page("Terms of Use",
+                    "Draft &mdash; legal identity and applicable terms require confirmation before publication.",
+                    TERMS),
 )
 
-# ---------------------------------------------------------------------------
-# Shared header and footer
-# ---------------------------------------------------------------------------
-NAV = [("/loan-options", "Loan Options"), ("/how-it-works", "How It Works"),
-       ("/homebuyer-resources", "Homebuyer Resources"), ("/about", "About")]
-HEADER_BP = 1140
+# ===========================================================================
+# Shared header
+# ===========================================================================
+NAV = [("/", "Home"), ("/about", "About"), ("/loan-options", "Loan Options"), ("/how-it-works", "How It Works"),
+       ("/homebuyer-resources", "Resources"), ("/faqs", "FAQs"), ("/contact", "Contact")]
+HEADER_BP = 1240
 
 HEADER = """<!-- ============================================================
      COVERED BRIDGE HOME LOANS — SHARED HEADER
@@ -1654,21 +1989,21 @@ HEADER = """<!-- ============================================================
      section to every page (don't paste a copy per page).
      Styles are scoped to .%R; the script only touches .%R.
 
-     Pinned to the top with position: fixed (sticky doesn't survive
+     Slim dark bar pinned with position: fixed (sticky doesn't survive
      GHL's element wrappers); the outer box reserves the bar's height.
      Logo: the Covered Bridge Brands logo, embedded unless
      config/site.json supplies a GHL Media link.
      ============================================================ -->
 <style>
   .%R {""" + TOKENS + """
-    --%R-h: 84px;
+    --%R-h: 76px;
     position: relative;
     display: block;
     width: 100%;
-    height: calc(var(--%R-h) + 1px);
+    height: var(--%R-h);
     margin: 0;
     padding: 0;
-    background: var(--hl-bg);
+    background: var(--hl-black);
     font-family: var(--hl-sans);
   }
   .%R,
@@ -1684,14 +2019,12 @@ HEADER = """<!-- ============================================================
     right: 0;
     z-index: 1000;
     margin: 0;
-    padding: 0 clamp(16px, 3.4vw, 48px);
-    background: rgba(13, 13, 13, 0.97);
-    border-bottom: 1px solid rgba(210, 163, 76, 0.4);
+    padding: 0 clamp(16px, 3vw, 40px);
+    background: var(--hl-black);
+    border-bottom: 1px solid rgba(210, 163, 76, 0.35);
     transition: box-shadow 0.25s ease;
   }
-  .%R.is-scrolled .%R__bar {
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
-  }
+  .%R.is-scrolled .%R__bar { box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45); }
   .%R .%R__inner {
     display: flex;
     align-items: center;
@@ -1702,11 +2035,11 @@ HEADER = """<!-- ============================================================
     margin: 0 auto;
   }
 
-  /* ---- Identity: CBB logo + Covered Bridge Home Loans ---- */
+  /* ---- Identity ---- */
   .%R .%R__brand {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
     flex: 0 1 auto;
     min-width: 0;
     text-decoration: none;
@@ -1714,13 +2047,13 @@ HEADER = """<!-- ============================================================
   .%R .%R__logo {
     display: block;
     width: auto;
-    height: 38px;
+    height: 34px;
     border: 0;
   }
-  .%R .%R__divider {
+  .%R .%R__rule {
     flex: 0 0 1px;
     width: 1px;
-    height: 36px;
+    height: 32px;
     background: rgba(210, 163, 76, 0.45);
   }
   .%R .%R__name {
@@ -1730,8 +2063,7 @@ HEADER = """<!-- ============================================================
     white-space: nowrap;
   }
   .%R .%R__name-top {
-    font-family: var(--hl-sans);
-    font-size: 0.6875rem;
+    font-size: 0.625rem;
     font-weight: 600;
     letter-spacing: 0.24em;
     text-transform: uppercase;
@@ -1739,9 +2071,9 @@ HEADER = """<!-- ============================================================
   }
   .%R .%R__name-main {
     font-family: var(--hl-serif);
-    font-size: 1.3125rem;
+    font-size: 1.1875rem;
     font-weight: 600;
-    color: var(--hl-text);
+    color: var(--hl-warm);
   }
   .%R .%R__brand:focus-visible {
     outline: 2px solid var(--hl-gold-hover);
@@ -1752,33 +2084,27 @@ HEADER = """<!-- ============================================================
   .%R .%R__nav {
     display: flex;
     align-items: center;
-    gap: clamp(20px, 2.2vw, 32px);
+    gap: clamp(18px, 2vw, 28px);
   }
   .%R .%R__list {
     display: flex;
     align-items: center;
-    gap: clamp(18px, 2vw, 30px);
+    gap: clamp(14px, 1.6vw, 24px);
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .%R .%R__item {
-    margin: 0;
-    padding: 0;
-  }
-  .%R .%R__item::marker {
-    content: none;
-  }
+  .%R .%R__item { margin: 0; padding: 0; }
+  .%R .%R__item::marker { content: none; }
   .%R .%R__link {
     position: relative;
     display: inline-block;
     padding: 8px 0;
-    font-family: var(--hl-sans);
     font-size: 0.9375rem;
-    font-weight: 400;
+    font-weight: 500;
     line-height: 1.2;
     white-space: nowrap;
-    color: var(--hl-text);
+    color: var(--hl-warm);
     text-decoration: none;
     transition: color 0.2s ease;
   }
@@ -1795,23 +2121,18 @@ HEADER = """<!-- ============================================================
     transition: transform 0.25s ease;
   }
   .%R .%R__link:hover,
-  .%R .%R__link[aria-current="page"] {
-    color: var(--hl-gold);
-  }
+  .%R .%R__link[aria-current="page"] { color: var(--hl-gold); }
   .%R .%R__link:hover::after,
-  .%R .%R__link[aria-current="page"]::after {
-    transform: scaleX(1);
-  }
+  .%R .%R__link[aria-current="page"]::after { transform: scaleX(1); }
   .%R .%R__cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 46px;
+    min-height: 44px;
     padding: 0 22px;
-    border-radius: 3px;
+    border-radius: 999px;
     background: var(--hl-gold);
     color: #0D0D0D;
-    font-family: var(--hl-sans);
     font-size: 0.9375rem;
     font-weight: 600;
     line-height: 1.2;
@@ -1819,17 +2140,14 @@ HEADER = """<!-- ============================================================
     text-decoration: none;
     transition: background-color 0.2s ease;
   }
-  .%R .%R__cta:hover {
-    background: var(--hl-gold-hover);
-    color: #0D0D0D;
-  }
+  .%R .%R__cta:hover { background: var(--hl-gold-hover); color: #0D0D0D; }
   .%R .%R__link:focus-visible,
   .%R .%R__cta:focus-visible {
     outline: 2px solid var(--hl-gold-hover);
     outline-offset: 4px;
   }
 
-  /* ---- Menu button (smaller screens) ---- */
+  /* ---- Menu button ---- */
   .%R .%R__toggle {
     display: none;
     flex: 0 0 auto;
@@ -1842,7 +2160,7 @@ HEADER = """<!-- ============================================================
     margin: 0;
     padding: 0 11px;
     border: 1px solid rgba(210, 163, 76, 0.55);
-    border-radius: 3px;
+    border-radius: 6px;
     background: transparent;
     cursor: pointer;
     -webkit-appearance: none;
@@ -1859,15 +2177,9 @@ HEADER = """<!-- ============================================================
     background: var(--hl-gold);
     transition: transform 0.25s ease, opacity 0.2s ease;
   }
-  .%R.is-open .%R__toggle-line:nth-child(1) {
-    transform: translateY(7.5px) rotate(45deg);
-  }
-  .%R.is-open .%R__toggle-line:nth-child(2) {
-    opacity: 0;
-  }
-  .%R.is-open .%R__toggle-line:nth-child(3) {
-    transform: translateY(-7.5px) rotate(-45deg);
-  }
+  .%R.is-open .%R__toggle-line:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+  .%R.is-open .%R__toggle-line:nth-child(2) { opacity: 0; }
+  .%R.is-open .%R__toggle-line:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
   .%R .%R__sr {
     position: absolute;
     width: 1px;
@@ -1881,12 +2193,8 @@ HEADER = """<!-- ============================================================
   }
 
   @media (max-width: %BPpx) {
-    .%R {
-      --%R-h: 72px;
-    }
-    .%R .%R__toggle {
-      display: flex;
-    }
+    .%R { --%R-h: 68px; }
+    .%R .%R__toggle { display: flex; }
     .%R .%R__nav {
       position: absolute;
       top: 100%;
@@ -1896,7 +2204,7 @@ HEADER = """<!-- ============================================================
       max-height: 0;
       overflow: hidden;
       visibility: hidden;
-      background: var(--hl-bg);
+      background: var(--hl-black);
       border-bottom: 1px solid rgba(210, 163, 76, 0);
       transition: max-height 0.35s ease, visibility 0s linear 0.35s, border-color 0.35s ease;
     }
@@ -1905,38 +2213,32 @@ HEADER = """<!-- ============================================================
       overflow-y: auto;
       visibility: visible;
       border-bottom-color: rgba(210, 163, 76, 0.45);
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.6);
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.5);
       transition: max-height 0.35s ease, visibility 0s linear 0s, border-color 0.35s ease;
     }
     .%R .%R__list {
       flex-direction: column;
       align-items: stretch;
       gap: 0;
-      padding: 8px clamp(16px, 4vw, 48px) 0;
+      padding: 6px clamp(16px, 4vw, 40px) 0;
     }
     .%R .%R__link {
       display: block;
-      padding: 16px 0;
+      padding: 15px 0;
       border-bottom: 1px solid rgba(210, 163, 76, 0.15);
       font-size: 1.0625rem;
     }
-    .%R .%R__link::after {
-      right: auto;
-      bottom: 10px;
-      width: 28px;
-    }
+    .%R .%R__link::after { right: auto; bottom: 9px; width: 28px; }
     .%R .%R__cta {
       display: flex;
       min-height: 52px;
-      margin: 20px clamp(16px, 4vw, 48px) 24px;
+      margin: 18px clamp(16px, 4vw, 40px) 22px;
       font-size: 1rem;
     }
   }
   @media (max-width: 560px) {
     .%R .%R__logo,
-    .%R .%R__divider {
-      display: none;
-    }
+    .%R .%R__rule { display: none; }
   }
   @media (prefers-reduced-motion: reduce) {
     .%R .%R__bar,
@@ -1944,9 +2246,7 @@ HEADER = """<!-- ============================================================
     .%R .%R__link::after,
     .%R .%R__toggle-line,
     .%R .%R__nav,
-    .%R .%R__cta {
-      transition: none;
-    }
+    .%R .%R__cta { transition: none; }
   }
 </style>
 
@@ -1955,7 +2255,7 @@ HEADER = """<!-- ============================================================
     <div class="%R__inner">
       <a class="%R__brand" href="/" aria-label="Covered Bridge Home Loans home">
         <img class="%R__logo" src="%IMG:logo%" alt="" width="480" height="100" decoding="async">
-        <span class="%R__divider" aria-hidden="true"></span>
+        <span class="%R__rule" aria-hidden="true"></span>
         <span class="%R__name" aria-hidden="true">
           <span class="%R__name-top">Covered Bridge</span>
           <span class="%R__name-main">Home Loans</span>
@@ -2028,15 +2328,18 @@ HEADER = """<!-- ============================================================
 </script>
 """
 
-FOOTER_LINKS = [("/", "Home"), ("/loan-options", "Loan Options"), ("/how-it-works", "How It Works"),
-                ("/homebuyer-resources", "Homebuyer Resources"), ("/faqs", "FAQs"), ("/about", "About"),
-                ("/contact", "Contact")]
+# ===========================================================================
+# Shared footer
+# ===========================================================================
+FOOTER_RES = [("/homebuyer-resources", "Homebuyer Resources"), ("/faqs", "FAQs"),
+              ("/privacy-policy", "Privacy Policy"), ("/terms", "Terms of Use")]
 
 FOOTER = """<!-- ============================================================
      COVERED BRIDGE HOME LOANS — SHARED FOOTER
      Paste once into a GHL Custom HTML/JavaScript element inside a
      GLOBAL SECTION at the bottom of the site, and add that global
      section to every page. Styles are scoped to .%R.
+     It carries the site-wide loan disclaimer.
 
      >>> LEGAL DISCLOSURE REQUIRED BEFORE PUBLISHING <<<
      The disclosure area below (.%R__legal) is intentionally empty and
@@ -2053,10 +2356,9 @@ FOOTER = """<!-- ============================================================
     display: block;
     width: 100%;
     margin: 0;
-    padding: clamp(56px, 7vw, 88px) var(--hl-gutter) 28px;
-    background: #0A0A0A;
-    border-top: 1px solid rgba(210, 163, 76, 0.3);
-    color: var(--hl-text);
+    padding: clamp(56px, 7vw, 84px) var(--hl-gutter) 26px;
+    background: var(--hl-black);
+    color: var(--hl-warm);
     font-family: var(--hl-sans);
     font-size: 16px;
     line-height: 1.6;
@@ -2068,30 +2370,35 @@ FOOTER = """<!-- ============================================================
   .%R *::after {
     box-sizing: border-box;
   }
-  .%R .%R__inner {
+  .%R .%R__in {
     max-width: 1180px;
     margin: 0 auto;
   }
   .%R .%R__grid {
     display: grid;
-    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr) minmax(0, 3fr);
+    grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) minmax(0, 4fr);
     gap: clamp(32px, 5vw, 72px);
+  }
+  .%R .%R__logo {
+    display: block;
+    width: auto;
+    height: 40px;
+    margin: 0 0 18px;
   }
   .%R .%R__name {
     margin: 0 0 8px;
-    padding: 0;
     font-family: var(--hl-serif);
-    font-size: 1.625rem;
+    font-size: 1.5rem;
     font-weight: 600;
     line-height: 1.25;
-    color: var(--hl-text);
+    color: var(--hl-warm);
   }
-  .%R .%R__tagline {
-    margin: 0 0 22px;
-    padding: 0;
-    font-size: 1rem;
-    line-height: 1.6;
-    color: var(--hl-muted);
+  .%R .%R__desc {
+    max-width: 30em;
+    margin: 0 0 18px;
+    font-size: 0.9375rem;
+    line-height: 1.65;
+    color: var(--hl-warm-muted);
   }
   .%R .%R__family {
     display: inline-flex;
@@ -2102,127 +2409,115 @@ FOOTER = """<!-- ============================================================
     color: var(--hl-gold);
     text-decoration: none;
   }
-  .%R .%R__family svg {
-    width: 15px;
-    height: 15px;
-  }
-  .%R .%R__family:hover {
-    color: var(--hl-gold-hover);
-  }
+  .%R .%R__family svg { width: 15px; height: 15px; }
+  .%R .%R__family:hover { color: var(--hl-gold-hover); }
   .%R .%R__heading {
-    margin: 4px 0 14px;
-    padding: 0;
+    display: inline-block;
+    margin: 4px 0 18px;
+    padding: 0 0 6px;
+    border-bottom: 2px solid var(--hl-gold);
     font-family: var(--hl-sans);
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 600;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    color: var(--hl-gold);
+    color: var(--hl-warm);
   }
   .%R .%R__links {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, max-content));
-    gap: 10px 32px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .%R .%R__links--single {
-    grid-template-columns: minmax(0, max-content);
-  }
-  .%R .%R__links li {
-    margin: 0;
-  }
-  .%R .%R__links li::marker {
-    content: none;
-  }
+  .%R .%R__links li { margin: 0; }
+  .%R .%R__links li::marker { content: none; }
   .%R .%R__links a {
     font-size: 0.9375rem;
     line-height: 1.5;
-    color: var(--hl-text);
+    color: var(--hl-warm);
     text-decoration: none;
   }
-  .%R .%R__links a:hover {
-    color: var(--hl-gold);
+  .%R .%R__links a:hover { color: var(--hl-gold); }
+  .%R .%R__cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 46px;
+    margin: 24px 0 0;
+    padding: 0 22px;
+    border-radius: 999px;
+    background: var(--hl-gold);
+    color: #0D0D0D;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    text-decoration: none;
   }
+  .%R .%R__cta:hover { background: var(--hl-gold-hover); color: #0D0D0D; }
   .%R a:focus-visible {
     outline: 2px solid var(--hl-gold-hover);
     outline-offset: 4px;
-    border-radius: 2px;
+    border-radius: 3px;
   }
-  /* Legal disclosure: hidden until approved wording is added. */
-  .%R .%R__legal {
+  .%R .%R__fine {
     margin: clamp(36px, 4vw, 48px) 0 0;
     padding: 22px 0 0;
-    border-top: 1px solid rgba(210, 163, 76, 0.18);
+    border-top: 1px solid rgba(210, 163, 76, 0.2);
     font-size: 0.8125rem;
     line-height: 1.65;
-    color: var(--hl-muted);
+    color: #B8B3A5;
   }
-  .%R .%R__legal:empty {
-    display: none;
-  }
-  .%R .%R__legal p {
-    margin: 0 0 8px;
-  }
+  .%R .%R__fine p { margin: 0 0 8px; }
+  .%R .%R__fine p:last-child { margin-bottom: 0; }
+  /* Legal disclosure: hidden until approved wording is added. */
+  .%R .%R__legal:empty { display: none; }
+  .%R .%R__legal p { margin: 0 0 8px; }
   .%R .%R__bottom {
-    margin: clamp(36px, 4vw, 48px) 0 0;
-    padding: 22px 0 0;
-    border-top: 1px solid rgba(210, 163, 76, 0.18);
+    margin: 22px 0 0;
+    padding: 18px 0 0;
+    border-top: 1px solid rgba(210, 163, 76, 0.2);
     font-size: 0.8125rem;
-    line-height: 1.6;
-    color: var(--hl-muted);
+    color: #B8B3A5;
   }
-  .%R .%R__legal:not(:empty) + .%R__bottom {
-    margin-top: 16px;
-    padding-top: 0;
-    border-top: 0;
-  }
-  .%R .%R__bottom p {
-    margin: 0;
-  }
+  .%R .%R__bottom p { margin: 0; }
   @media (max-width: 900px) {
-    .%R .%R__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-    .%R .%R__brand {
-      grid-column: 1 / -1;
-    }
+    .%R .%R__grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .%R .%R__brand { grid-column: 1 / -1; }
   }
   @media (max-width: 520px) {
-    .%R .%R__grid {
-      grid-template-columns: minmax(0, 1fr);
-    }
+    .%R .%R__grid { grid-template-columns: minmax(0, 1fr); }
   }
 </style>
 
 <footer class="%R">
-  <div class="%R__inner">
+  <div class="%R__in">
     <div class="%R__grid">
       <div class="%R__brand">
+        <img class="%R__logo" src="%IMG:logo%" alt="Covered Bridge Brands" width="480" height="100" loading="lazy" decoding="async">
         <p class="%R__name">Covered Bridge Home Loans</p>
-        <p class="%R__tagline">Guidance for your home purchase or refinance.</p>
+        <p class="%R__desc">Guidance for your home purchase or refinance.</p>
         <a class="%R__family" href="https://coveredbridgebrands.com/">Part of Covered Bridge Brands""" + ARROW + """</a>
       </div>
       <nav aria-label="Footer">
-        <p class="%R__heading">Explore</p>
+        <p class="%R__heading">Navigation</p>
         <ul class="%R__links">
-%LINKS%
+%NAV%
         </ul>
       </nav>
-      <nav aria-label="Legal">
-        <p class="%R__heading">Legal</p>
-        <ul class="%R__links %R__links--single">
-          <li><a href="/privacy-policy">Privacy Policy</a></li>
-          <li><a href="/terms">Terms of Use</a></li>
+      <div>
+        <p class="%R__heading">Helpful Resources</p>
+        <ul class="%R__links">
+%RES%
         </ul>
-      </nav>
+        <a class="%R__cta" href="/contact">""" + CTA_LABEL + """</a>
+      </div>
     </div>
-    <div class="%R__legal"><!--
-      LEGAL DISCLOSURE (required before publishing): add the approved
-      entity name, NMLS ID and other required disclosures here as
-      <p>…</p> lines, replacing this comment. See the note at the top.
-    --></div>
+    <div class="%R__fine">
+      <p>""" + DISCLAIMER + """</p>
+      <div class="%R__legal"><!--
+        LEGAL DISCLOSURE (required before publishing): add the approved
+        entity name, NMLS ID and other required disclosures here as
+        <p>…</p> lines, replacing this comment. See the note at the top.
+      --></div>
+    </div>
     <div class="%R__bottom">
       <p>&copy; <span data-year>2026</span> Covered Bridge Home Loans. All rights reserved.</p>
     </div>
@@ -2238,11 +2533,14 @@ FOOTER = """<!-- ============================================================
 """
 
 
+# ---------------------------------------------------------------------------
+# Rendering
+# ---------------------------------------------------------------------------
 def render(text, root):
-    for key in IMAGE_FILES:
+    for key in IMAGES:
         token = f"%IMG:{key}%"
         if token in text:
-            text = text.replace(token, img(key))
+            text = text.replace(token, img_src(key))
     return text.replace("%R", root)
 
 
@@ -2253,14 +2551,16 @@ def build_header():
 
 
 def build_footer():
-    links = "\n".join(f'          <li><a href="{h}">{t}</a></li>' for h, t in FOOTER_LINKS)
-    return render(FOOTER.replace("%LINKS%", links), "cbhl-footer")
+    nav = "\n".join(f'          <li><a href="{h}">{t}</a></li>' for h, t in NAV)
+    res = "\n".join(f'          <li><a href="{h}">{t}</a></li>' for h, t in FOOTER_RES)
+    return render(FOOTER.replace("%NAV%", nav).replace("%RES%", res), "cbhl-footer")
 
 
 def build_page(p):
     css = "".join(CSS[k] for k in p["css"])
+    name = p["title"].split(" | ")[0].replace("&amp;", "&").upper()
     head = f"""<!-- ============================================================
-     COVERED BRIDGE HOME LOANS — {p['title'].split(' | ')[0].upper().replace('&AMP;', '&')} PAGE BODY
+     COVERED BRIDGE HOME LOANS — {name} PAGE BODY
      Route: {p['route']}
      SEO title: {p['title'].replace('&amp;', '&')}
      Meta description: {p['meta']}
@@ -2292,8 +2592,8 @@ def preview(header, body, footer, title):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <!-- Preview only: GHL loads the fonts itself. Don't paste this file into GHL. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600&display=swap">
-<style>body {{ margin: 0; background: #0D0D0D; }}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap">
+<style>body {{ margin: 0; background: #FAF8F4; }}</style>
 </head>
 <body>
 {header}
@@ -2313,8 +2613,10 @@ def main():
     for p in PAGES:
         body = build_page(p)
         assert "%R" not in body and "%IMG" not in body and "%APPLICATION" not in body, p["file"]
-        low = body.lower()
-        for banned in ("trulli", "mapscore", "covered bridge capital", "coming soon", "scout", "floify"):
+        import re
+        low = re.sub(r"data:image/[a-z]+;base64,[A-Za-z0-9+/=]+", "", body).lower()
+        for banned in ("trulli", "mapscore", "covered bridge capital", "coming soon", "scout", "floify",
+                       "valor", "testimonial", "apply now"):
             assert banned not in low, (p["file"], banned)
         (OUT / "pages" / p["file"]).write_text(body, encoding="utf-8")
         route_dir = OUT / "preview" / p["route"].strip("/")
