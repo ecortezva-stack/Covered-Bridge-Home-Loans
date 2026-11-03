@@ -1,0 +1,67 @@
+{
+  "_captured": "2026-11-03 (pre-change). Location giyhFtPh7MreGKeeSdCx 'Covered Bridge Home Loans'. Config only; no contact PII.",
+  "location": {"id":"giyhFtPh7MreGKeeSdCx","companyId":"CCaMpBMKYkOGGcV6G3bb","timezone":"America/New_York","email":"[redacted]@valorhl.com","phone":"+1 814-288-7339","website":"https://davidbassett.valorhldirect.com/home","snapshotId":"FEPlPFIV2bGHs6dubuBk","settings":{"allowDuplicateContact":false,"allowDuplicateOpportunity":false,"contactUniqueIdentifiers":["email","phone"]},"defaultEmailService":""},
+  "channels": {"sms":[{"provider":"Twilio","default":true,"number":"+18146999642","friendlyName":"David's number","capabilities":"sms,mms,voice"}],"email_providers":[]},
+  "users": [
+    {"id":"A60mwkzSCchwLJExvle8","name":"David Bassett","email":"[redacted]@valorhl.com","role":"account admin"},
+    {"id":"nGDbmcx6TTzCFD2gRax8","name":"Josh Dabbs","email":"[redacted]@valorhl.com","role":"account admin"},
+    {"id":"UZlEjQwQOpbnblEdqxzZ","name":"Mark Rotundo","email":"[redacted]@valorhl.com","role":"account user","assignedDataOnly":true},
+    {"id":"fKG0auB35M17yjCtuV4G","name":"Teresa Turner","email":"[redacted]@valorhl.com","role":"account user","assignedDataOnly":true},
+    {"id":"hWpH0ofrbi1R2W8dGrCZ","name":"Brenda Jones","email":"[redacted]@valorhl.com","role":"account user"},
+    {"id":"mtYd98nWhA5FZsuF0ZZa","name":"Ezekiel Cortez","email":"[redacted]@gmail.com","role":"agency admin"}
+  ],
+  "pipelines": [
+    {"id":"IEOoQLn1URNe0y1DHj4o","name":"Inbound Leads","open_opportunities":110,"stages":[
+      ["38ab9563-2a20-472d-af5d-a71d896c131c","New Leads 🆕",0],
+      ["74dd632e-c5d2-4270-b16e-fde65036466c","Attempted Contact ☎️",86],
+      ["fdffe976-9789-48dd-b81e-a34dcb00d9db","Connected",2],
+      ["a07c11f9-5d81-45cf-82d8-744e446ab75c","New app received",0],
+      ["b6d25479-e2c4-46dd-9440-e98b478a60c1","App received - No Contact",0],
+      ["1d26c6a3-96b6-49e2-8e10-06780e3893cb","App started - still working",0],
+      ["1d6710cc-30c3-4ceb-ae0e-4ab9bf4a5e99","Active AI Conversation 🤖",0],
+      ["70f6c5bb-9232-44f7-8e78-7bbc8be29e4c","Call Back (No Timeline) 🤳",0],
+      ["4c0bf8e6-49ff-44c0-a969-b0956d86969b","Nurture (6+ Months) 🌱",0],
+      ["a0c2aca4-f4b6-4eed-a5de-3a00569bcdcd","Warm (3-6 Months) ♨️",0],
+      ["5e5374b3-610b-4d82-9b51-bab979e335c5","Hot (1-3 Months) 🔥",0],
+      ["f82ffda6-97c7-479d-8f1c-a4db702973c3","Booked Appointments 📅",0],
+      ["301ef704-2b4d-4007-93bd-6cdea4c85e92","Missed Appointment ⏰",1],
+      ["5c905abd-3d1a-4e0c-b66b-77388ff1f3fe","Unresponsive (10+ Calls, NA) 🦗",0],
+      ["cee61fe0-89df-4ec1-903d-1db9ee1d8fe5","Not Interested 😑",12],
+      ["74023342-6277-496c-8b6d-d88559dc544b","DNC",1],
+      ["6f4ee63b-029e-4e5d-9eeb-f2f7ec157653","Unreachable on CRM",2],
+      ["296bacee-2387-4cb5-b8fa-0ef45f1754ce","Bad Number 📵",5],
+      ["0f9e37b7-46c1-4486-bc2b-98f36eb1bce4","Sent To Lender 💸",0],
+      ["d88b1f60-470f-414d-adaa-a854e02d1f5f","Active Client 🤝",1],
+      ["ffa17e96-510f-4827-a440-e1b67d165c78","Closed Deal 💰",0]]},
+    {"id":"qkO9qAqk3oIWHZWHfsx2","name":"Imported Leads","open_opportunities":0,"stage_count":13}
+  ],
+  "workflows": {
+    "published": {
+      "bc77a154-dba3-43cd-bc36-5f22c86b6794":"Bad Number Automation",
+      "5c7d9ad3-1ce6-48dd-8077-139aa40de6de":"Email & Phone Validation + Contact Deletion",
+      "35df5346-99d4-4202-90d6-a5b3472f935e":"Email & Phone Validation + DND Tag",
+      "5aaa9453-4a60-4003-9889-44ae2e917e2b":"Form 1 Opt-in SMS",
+      "97e00a03-57cc-4ef7-b269-cbe716b8cc0c":"Mortgage Ad AI Text Drip Campaign + Notifications | Facebook Lead Forms (v19)",
+      "f578d0f0-009a-4e24-8041-b66b4983b089":"Mortgage Ad Email Drip Campaign | Facebook Lead Form (v11)",
+      "757e0f28-2f20-4448-8877-6a4edc5289b4":"Nurture Stage - 3-Month Real Estate Newsletter",
+      "9da1875a-8e10-4ba0-9e08-17c76c029125":"Remove From Email & Text Drip When Pipeline Stage Changes",
+      "d3217528-8258-497b-ad09-5453536a8ea6":"Unresponsive - SMS x2"
+    },
+    "draft_count": 14,
+    "definitions": "NOT CAPTURED: workflow API returns 403 WORKFLOW_API_NOT_ENABLED_FOR_LOCATION for definition/search/step-types/validate."
+  },
+  "forms": ["S0iSmeFOdUDm1JsYtICE Lead Magnet","BG7ie5FL4qFInXtlDKOL A2P EIN","FGq32U8LJOqGhPIwnEZr A2P Sole Prop","HWVRdkrXkGE6brJegpNE A2P EIN","GuyX8aOrgW4kfyg5lgBX A2P Sole Prop","s2BsnrQsA7UgYfTOSYWA A2P Form","vi895VgeeiuNEr77cpxC Onboarding Form | REMA","FJBja5kRFpGhUjaxMNSD Opt-in Form | Buyer Guide","ZpTjjNk5rIXnI47d0KuA Opt-in Form | Homes list","f7EGUUrXVlxjqWxb9mXN Opt-in Form | Individual Listing","8rzOrOupIJgJDyLxphZe Opt-in Form | Seller Guide","Dc1M3ekNZtoiG0rpKXyx Form 1"],
+  "calendars": [
+    {"id":"6L47iCmVkBEigMySoBqH","name":"Ezekiel Cortez's Personal Calendar","type":"personal"},
+    {"id":"8yFbxSqn5McsdZPyMepL","name":"Teresa Turner's Personal Calendar","type":"personal","hours":"Mon-Fri 08:00-17:00"},
+    {"id":"RlUTFIXukRKXXNATYUu6","name":"Brenda Jones's Personal Calendar","type":"personal","hours":"Mon-Fri 08:00-17:00"},
+    {"id":"To1uanYqQYZOdKVSUqTh","name":"David Bassett's Personal Calendar","type":"personal","hours":"Mon-Fri 08:00-17:00"},
+    {"id":"XLuXmyGFhXC0Jsnid4cO","name":"Mark Rotundo's Personal Calendar","type":"personal","hours":"Mon-Fri 08:00-17:00"},
+    {"id":"ZBgvfqdb1IGlQUSLWXJS","name":"Josh Dabbs's Personal Calendar","type":"personal","hours":"Mon-Fri 08:00-17:00"},
+    {"id":"gNdgt3C9nod9PDwW6yGu","name":"Intro Call","type":"round_robin","team":["UZlEjQwQOpbnblEdqxzZ","fKG0auB35M17yjCtuV4G"],"openHours":{},"slug":"intro-with-ellie-6f1406ad-a564-419b-8c9c-844f730e70d6","events_since_2025-09":0},
+    {"id":"n3gxIgUCYVfs2EN5Fyvm","name":"Intro Call with David","type":"event","team":[],"hours":"Mon-Sat 09:00-17:00","slug":"intro-call-with-1c274b68-5a33-4f69-839a-d4d7224707a3","events_since_2025-09":0}
+  ],
+  "contact_custom_fields": ["0rZaQMI0A5xZLlKPF7Dc Registered Business Name","3o8fM3qxOV3Y4Ybgn7JI About Me:","GluRHpNtKFbelgVE5hka Phone number area code","N1e3z9MTL3ECxNc4P3nm How can we help? (contact.how_can_we_help)","O8DsYcuF5xYDfn42QLKV Monthly Budget","Pf84Y78nOI1IMSxjCoTR Adset","U9tnURGfuWnpiBt5uPMF Brokerage:","WHYU1m32B10lULwkqFo1 Provide 4 Cities...","Zznw1SqmIverDbbhCc73 Specialties:","eSmap4Kb7DKNvEZcISP7 Does your Business have an EIN number?","jKPF26qhWFF8H82DnEZm How can we help you?","l1ohgbvOMTrOmZBg41Q7 What is your (EIN) number?","oFhLWpTrZxPwzGMfvnes Service Areas:"],
+  "custom_values": {"I10taUdqRAcmHupzyyDF":["A2P Website Privacy Policy Link","https://davidbassett.valorhldirect.com/privacypolicy-6246"],"LEV8W9lbzsQVdVJMG5Hy":["Effective Date (Any Date)","September 1, 2026"],"Xoh5N4k9tht7B1g1iavF":["A2P Website Home Link","https://davidbassett.valorhldirect.com/home"],"C0JexbfG2E2PE2FJf9ct":["A2P Website Terms and Conditions Link","https://davidbassett.valorhldirect.com/termsandconditions-9775"],"T1cQpXzDgK6aqWE0k105":["Friendly Business Name (For Messages)",""],"yMRY48JJNajMX7la57wm":["Business Address","664 Tire Hill Rd Johnstown Pennsylvania 15905"],"0gBzbtloMvdQcA3GgNoJ":["From Email","[redacted]@valorhldirect.com"],"NsrV0B78zYjgKbNdQ2Vz":["Agent Full Name","David Bassett"],"5dRsU53bCmKI8z9IdiDD":["Business Phone","+1 814-288-7339"],"AokUcsRJRIngRGxrAKbm":["Location (Client's State)","Pennsylvania"],"aMMMKg3O4r7f6vYlN4af":["Friendly Business Name (A2P)","Valor Home Loans"],"WU4DvNnYnep1eujxTbLQ":["Agent First Name","David"],"k5rAlYk9tqZMNn7mHQuD":["Registered Business Name (EIN)",""]},
+  "tags_count_before": 29
+}
