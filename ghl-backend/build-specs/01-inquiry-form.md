@@ -1,8 +1,8 @@
 # Build spec: CBHL General Inquiry form
 
-**Why this is a UI build:** the GHL connector has no create/edit operation for native forms. The browser route
-isn't available from the cloud session either: GHL hosts are blocked by its network policy, and it has no GHL login.
-Everything the form maps to already exists, so the build is drag-and-drop with no new fields.
+**Builder:** Claude (backend owner). The GHL connector has no create/edit operation for native forms, so
+the build needs an authorized browser session (see 04-access-unblock.md). Everything the form maps to
+already exists, so no new fields are needed during the build.
 
 Where: GHL → Covered Bridge Home Loans → Sites → Forms → Builder → **+ Add Form** → Start from scratch.
 
@@ -28,20 +28,20 @@ Where: GHL → Covered Bridge Home Loans → Sites → Forms → Builder → **+
 | 6 | Custom fields → **Inquiry Message** | Brief message (optional) | No | `contact.inquiry_message` (id `fPPzPGYeAmh0NqL3GIit`) |
 | 7 | Custom fields → **CBHL Inquiry Source**, set to **Hidden** | — | No | `contact.cbhl_inquiry_source` (id `n1hBhMlVT6CDFR3LLxWu`). Hidden value: query key `cbhl_source`, default value `website`. |
 | 8 | Text element (not a field) | "Please don't include Social Security numbers, account numbers or other financial details. This form is for general questions and is not a mortgage application." | n/a | n/a |
-| 9 | **Consent checkbox** | **Wording needed. See below.** | n/a | n/a |
+| 9 | Custom fields → **CBHL SMS Consent** (checkbox, optional, unchecked) | PROPOSED wording in 05-proposed-sequences.md §F, **pending approval** | No | `contact.cbhl_sms_consent` (id `ZWptqJN6JSiLJeWa3Jqn`). Consent date is set by CBHL-01 into `contact.cbhl_sms_consent_date` (id `Wr8G7TWUjKRmqO4ipDtd`). |
 
 Do **not** add SSN, date of birth, credit score, income, account numbers, file uploads, or any
 application questions.
 
-### Consent (decision needed before SMS follow-up)
+### Consent (wording pending approval)
 
 The contact-page notes say any communication consent belongs in the form itself. They also rule out
 credit-check authorization, bundled marketing consent and automatic SMS enrollment. SMS follow-up to form
 leads under the registered A2P campaign needs approved opt-in wording. That wording is a legal/compliance
-decision, so it isn't written here. Until it's supplied:
-- build the form without the checkbox,
-- form leads still get the internal routing (opportunity, owner, task, notification). The 8-SMS drip in
-  CBHL-03 stays draft either way.
+decision. Proposed wording is in 05-proposed-sequences.md §F for approval. Until it's approved:
+- the form goes live without the checkbox,
+- form leads still get the internal routing (opportunity, owner, task, notification). No SMS is sent,
+  because every SMS step requires `CBHL SMS Consent` = Yes.
 
 ## Form settings (gear icon)
 

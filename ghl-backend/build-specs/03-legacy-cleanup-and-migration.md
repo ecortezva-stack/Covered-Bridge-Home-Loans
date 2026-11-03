@@ -44,29 +44,56 @@ first so it can be recovered.
 | Calendars **Intro Call** and **Intro Call with David** | Both currently unbookable (no hours / no team) and have no appointments. Deactivate after confirming no workflow sends their links. |
 | Real-estate-agent custom fields (Monthly Budget, Brokerage, Specialties, Service Areas, Provide 4 Cities…, About Me) and duplicate forms (A2P EIN ×2, A2P Sole Prop ×2, Lead Magnet, Opt-in Form \| Buyer Guide / Homes list / Individual Listing / Seller Guide, Onboarding Form \| REMA) | Template leftovers. Delete forms in the UI after checking submissions; delete fields only if empty. |
 
-## Migrating the 110 open opportunities
+## Contact-deletion workflow ("Email & Phone Validation + Contact Deletion", published)
 
-Counts by current stage (2026-11-03): Attempted Contact 86, Not Interested 12, Bad Number 5,
-Connected 2, Unreachable on CRM 2 (one is "Melody Test Only"), Missed Appointment 1, DNC 1,
-Active Client 1. All other stages: 0.
+Behavior is **unknown**: the name alone doesn't establish it, and its definition can't be read through
+the API (403). Required before it may process any new Home Loans lead:
+1. Open it (Workflow API or browser), then **save its full configuration** to
+   `snapshots/legacy-workflows/5c7d9ad3-…json` (API) or as a clone `zz Saved - Email & Phone Validation +
+   Contact Deletion (2026-11)` plus screenshots of every step (browser).
+2. Record its **triggers** (contact created? tag? form?), **filters**, **validation provider** (GHL
+   built-in verification is billed per check), **deletion conditions**, and **dependencies** (tags it sets
+   that other workflows read, e.g. `dnd email`/`dnd sms`).
+3. **Disable the deletion behavior** (unpublish, or remove the Delete Contact step and republish) before
+   CBHL-01 is published. If validation itself is wanted, replace "delete" with: set `CBHL Email Status` /
+   `CBHL Phone Status`, add DND on the invalid channel, add tag `bad number` where relevant, and a task.
+4. Never delete the workflow itself before step 1 is saved.
 
-| Old stage | Count | New stage | Status |
-|---|---|---|---|
-| Attempted Contact ☎️ | 86 | New | clear (not yet contacted = New Lead) |
-| Connected | 2 | Connected | clear |
-| DNC | 1 | DNC | clear |
-| Bad Number 📵 | 5 | Disc/Wrong Number | clear |
-| Not Interested 😑 | 12 | **decision** | no matching status in David's table (Withdrawn? Expired? leave in old pipeline?) |
-| Unreachable on CRM | 2 | **decision** | one is a test record ("Melody Test Only"); delete that one? |
-| Missed Appointment ⏰ | 1 | **decision** | Connected? |
-| Active Client 🤝 | 1 | **decision** | Started / Preapproval / Locked? |
+## Migration mapping for the 110 open opportunities (prepared, NOT run)
 
-**How it will run (by API, once decided):**
-1. Unpublish the legacy stage-driven workflows first (Bad Number, Unresponsive, Nurture, Remove From Drip),
-   so moving records doesn't fire old automations.
-2. For each opportunity: move to the CBHL Lead to Loan stage, keep owner, set CBHL Lead Received Date =
-   original created date. **Don't** add `cbhl lead-to-loan`, so no new outreach starts. CBHL-04
-   (expiry) and CBHL-07 (bookkeeping/stop rules) may act on them, and neither sends anything.
-3. Read back counts per stage, then archive the old pipeline.
+Counts (2026-11-03): Attempted Contact 86, Not Interested 12, Bad Number 5, Connected 2, Unreachable on
+CRM 2, Missed Appointment 1, DNC 1, Active Client 1.
 
-Moving an opportunity between pipelines keeps its contact, conversations, notes, tasks and appointments.
+**On every migrated record**, whatever its target stage (fields exist, ids in the snapshot):
+- `CBHL Legacy Pipeline` = "Inbound Leads"; `CBHL Legacy Stage` = exact old label incl. emoji;
+  `CBHL Legacy Status` = old status (all currently `open`); `CBHL Legacy Owner` = owner name + user id.
+  The owner itself (`assignedTo`) is kept unchanged.
+- `CBHL Lead Received Date` = original opportunity created date (not the migration date).
+- `CBHL Legacy Outreach Occurred` = Yes (legacy SMS/email drips and dialing ran on these leads).
+- Contact tag `cbhl legacy migrated`. **Never** `cbhl lead-to-loan`, so no initial outreach restarts.
+
+| Old stage | n | Target stage | `CBHL Lead Disposition` | Notes |
+|---|---|---|---|---|
+| Attempted Contact ☎️ | 86 | New (reconsidered: kept, but marked) | Attempted Contact | Attempts already happened: Legacy Outreach Occurred = Yes, excluded from CBHL-03. "Connected" would overstate it. |
+| Connected | 2 | Connected | (blank) | direct match |
+| Bad Number 📵 | 5 | Disc/Wrong Number | (blank) | + `CBHL Phone Status` = Wrong Number **only if** staff confirm. Otherwise "Unknown"; the stage records the legacy call result. |
+| DNC | 1 | DNC | (blank) | + DND all channels (check current DND first; don't remove any existing DND) |
+| Not Interested 😑 | 12 | **New** (status unchanged: open) | **Not Interested** | Preserved as a disposition, **not** turned into Withdrawn/Declined/DNC. Stage New only because David's table has no lead-level "not interested" status; the disposition plus the legacy fields carry the truth. Excluded from outreach (legacy tag). *Alternative for David: keep these 12 in the old pipeline until he defines a status.* |
+| Unreachable on CRM | 1 | **New** | Unreachable on CRM | Meaning unconfirmed. `CBHL Phone Status` stays "Unknown" (not "Wrong Number"). |
+| Unreachable on CRM ("Melody Test Only", opp `XNb3sQWjb9r1E2xpiqk3`) | 1 | **New** | Test Record | + contact tag `cbhl test record`; excluded from all outreach and from reporting filters. Not deleted. |
+| Missed Appointment ⏰ | 1 | **New** | Missed Appointment | Appointment history stays on the contact. No application progress inferred. |
+| Active Client 🤝 | 1 | **New** | Active Client | Current classification kept until the real milestone (Started/Preapproval/Locked/Closed) is confirmed. Then staff move the stage. |
+
+Why "New" for the unmapped dispositions: GHL needs a stage. New is the only status in David's table
+that claims nothing about application progress, and the disposition field stops it being read as a
+fresh lead. If David prefers, those 16 records can stay in the old pipeline instead (no data lost either way).
+
+**Execution plan (run only after: legacy workflows inspected/saved, stage-driven legacy workflows
+unpublished, CBHL-07 published, David approves this mapping):**
+1. Dry run: export id, stage, owner, status and created date of all 110 to `snapshots/` (no PII in the repo copy).
+2. Contact-level: add `cbhl legacy migrated` (and `cbhl test record` for Melody) **before** moving any
+   opportunity, so any CBHL trigger sees the exclusion.
+3. Per opportunity: write the legacy fields, then move to the target stage in CBHL Lead to Loan with
+   owner and status unchanged.
+4. Read back counts per stage and disposition, and diff against the dry run.
+5. Watch for 48 h; then rename the old pipeline `zz Archived - Inbound Leads`. Never delete it while populated.

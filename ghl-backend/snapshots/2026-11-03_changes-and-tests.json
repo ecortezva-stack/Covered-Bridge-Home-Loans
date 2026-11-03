@@ -5,7 +5,10 @@
     "id": "jMBweNJJ25sMJgadWIUW",
     "status": 201,
     "read_back": "get-tag-by-id returned the same id/name (200)",
-    "traceIds": ["66a278e8-2140-48cd-a2f4-595440c566df", "6c1e1e8e-f335-455b-8eb0-7faf7589f70e"]
+    "traceIds": [
+      "66a278e8-2140-48cd-a2f4-595440c566df",
+      "6c1e1e8e-f335-455b-8eb0-7faf7589f70e"
+    ]
   },
   "created": {
     "pipeline": {
@@ -13,58 +16,254 @@
       "name": "CBHL Lead to Loan",
       "useOpportunityProbability": true,
       "stages": [
-        {"id": "a0b54c57-e94d-47da-a72d-5ccdecc5e9f1", "name": "New", "prob": 5, "funnel": true},
-        {"id": "eb620274-6481-4ee7-b860-3fca3528377b", "name": "Connected", "prob": 10, "funnel": true},
-        {"id": "77b688c6-6964-40d7-937f-e4170488770a", "name": "Started (New)", "prob": 25, "funnel": true},
-        {"id": "1feb42c0-2d8d-4ca4-883c-bad3d6a297d9", "name": "Started (NC)", "prob": 25, "funnel": true},
-        {"id": "4d3d34ee-60e8-4398-ab3e-3da8c15772fa", "name": "Started", "prob": 35, "funnel": true},
-        {"id": "a0716fa5-0773-4793-b29e-ed5d214aee9c", "name": "Preapproval", "prob": 60, "funnel": true},
-        {"id": "caa93f06-101b-4864-8bd5-12e6e42cc0f7", "name": "Locked", "prob": 85, "funnel": true},
-        {"id": "3df0cda7-d4d2-44e2-a860-1c8c2ee36b03", "name": "Closed", "prob": 100, "funnel": true},
-        {"id": "313f54d3-6618-4958-a4f8-cd0c00d2ac47", "name": "CTUD", "prob": 0, "funnel": false},
-        {"id": "27d4126c-ef5b-4129-bb59-25877e602696", "name": "WTD", "prob": 0, "funnel": false},
-        {"id": "481ac5d8-c0cf-443e-819d-70ef65c1ed5c", "name": "Incomplete", "prob": 0, "funnel": false},
-        {"id": "6c7665b3-01c4-4e2c-bbb1-6f005f335cc3", "name": "Declined", "prob": 0, "funnel": false},
-        {"id": "c5700c83-7efc-49fa-a0b8-bde6517da885", "name": "Withdrawn", "prob": 0, "funnel": false},
-        {"id": "da9f3224-e510-4875-a410-d4e14f323d6f", "name": "Disc/Wrong Number", "prob": 0, "funnel": false},
-        {"id": "214033e9-deac-4652-9757-1b88fcbc11b9", "name": "Wrong Language", "prob": 0, "funnel": false},
-        {"id": "2a6519b3-db15-4ea5-a893-911b32247736", "name": "Expired", "prob": 0, "funnel": false},
-        {"id": "1f37146d-068d-4862-9bea-e9315791550b", "name": "DNC", "prob": 0, "funnel": false}
+        {
+          "id": "a0b54c57-e94d-47da-a72d-5ccdecc5e9f1",
+          "name": "New",
+          "prob": 5,
+          "funnel": true
+        },
+        {
+          "id": "eb620274-6481-4ee7-b860-3fca3528377b",
+          "name": "Connected",
+          "prob": 10,
+          "funnel": true
+        },
+        {
+          "id": "77b688c6-6964-40d7-937f-e4170488770a",
+          "name": "Started (New)",
+          "prob": 25,
+          "funnel": true
+        },
+        {
+          "id": "1feb42c0-2d8d-4ca4-883c-bad3d6a297d9",
+          "name": "Started (NC)",
+          "prob": 25,
+          "funnel": true
+        },
+        {
+          "id": "4d3d34ee-60e8-4398-ab3e-3da8c15772fa",
+          "name": "Started",
+          "prob": 35,
+          "funnel": true
+        },
+        {
+          "id": "a0716fa5-0773-4793-b29e-ed5d214aee9c",
+          "name": "Preapproval",
+          "prob": 60,
+          "funnel": true
+        },
+        {
+          "id": "caa93f06-101b-4864-8bd5-12e6e42cc0f7",
+          "name": "Locked",
+          "prob": 85,
+          "funnel": true
+        },
+        {
+          "id": "3df0cda7-d4d2-44e2-a860-1c8c2ee36b03",
+          "name": "Closed",
+          "prob": 100,
+          "funnel": true
+        },
+        {
+          "id": "313f54d3-6618-4958-a4f8-cd0c00d2ac47",
+          "name": "CTUD",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "27d4126c-ef5b-4129-bb59-25877e602696",
+          "name": "WTD",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "481ac5d8-c0cf-443e-819d-70ef65c1ed5c",
+          "name": "Incomplete",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "6c7665b3-01c4-4e2c-bbb1-6f005f335cc3",
+          "name": "Declined",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "c5700c83-7efc-49fa-a0b8-bde6517da885",
+          "name": "Withdrawn",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "da9f3224-e510-4875-a410-d4e14f323d6f",
+          "name": "Disc/Wrong Number",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "214033e9-deac-4652-9757-1b88fcbc11b9",
+          "name": "Wrong Language",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "2a6519b3-db15-4ea5-a893-911b32247736",
+          "name": "Expired",
+          "prob": 0,
+          "funnel": false
+        },
+        {
+          "id": "1f37146d-068d-4862-9bea-e9315791550b",
+          "name": "DNC",
+          "prob": 0,
+          "funnel": false
+        }
       ],
-      "traceIds": ["366bc8b8-0448-4aa3-8140-5701b37f91f2", "0f5ed02b-844c-493b-820a-4d0285a9f37d"]
+      "traceIds": [
+        "366bc8b8-0448-4aa3-8140-5701b37f91f2",
+        "0f5ed02b-844c-493b-820a-4d0285a9f37d"
+      ]
     },
     "opportunity_custom_fields": {
-      "cBWFpIQGq64oZfnALl36": ["CBHL External Loan ID", "TEXT", "opportunity.cbhl_external_loan_id"],
-      "ek4a1rQ3jvrmgl4djxvc": ["CBHL Loan Purpose", "SINGLE_OPTIONS: Buying a Home | Refinancing | Exploring Loan Options | General Question", "opportunity.cbhl_loan_purpose"],
-      "oYWqiFe85RmqPkE1Alcy": ["CBHL Lead Received Date", "DATE", "opportunity.cbhl_lead_received_date"],
-      "7SP72t6BxEvh51olRoJQ": ["CBHL Application Received Date", "DATE", "opportunity.cbhl_application_received_date"],
-      "92QpByHnS7t07ebSqkdv": ["CBHL Preapproval Issued Date", "DATE", "opportunity.cbhl_preapproval_issued_date"],
-      "4Ll21bCPE4SdME3C4Pna": ["CBHL Lock Date", "DATE", "opportunity.cbhl_lock_date"],
-      "e5ymiF1yBHAuQOMiRmq2": ["CBHL Closed Date", "DATE", "opportunity.cbhl_closed_date"],
-      "ZFXNq8puk6eCOw5UySBv": ["CBHL Status Notes", "LARGE_TEXT", "opportunity.cbhl_status_notes"]
+      "cBWFpIQGq64oZfnALl36": [
+        "CBHL External Loan ID",
+        "TEXT",
+        "opportunity.cbhl_external_loan_id"
+      ],
+      "ek4a1rQ3jvrmgl4djxvc": [
+        "CBHL Loan Purpose",
+        "SINGLE_OPTIONS: Buying a Home | Refinancing | Exploring Loan Options | General Question",
+        "opportunity.cbhl_loan_purpose"
+      ],
+      "oYWqiFe85RmqPkE1Alcy": [
+        "CBHL Lead Received Date",
+        "DATE",
+        "opportunity.cbhl_lead_received_date"
+      ],
+      "7SP72t6BxEvh51olRoJQ": [
+        "CBHL Application Received Date",
+        "DATE",
+        "opportunity.cbhl_application_received_date"
+      ],
+      "92QpByHnS7t07ebSqkdv": [
+        "CBHL Preapproval Issued Date",
+        "DATE",
+        "opportunity.cbhl_preapproval_issued_date"
+      ],
+      "4Ll21bCPE4SdME3C4Pna": [
+        "CBHL Lock Date",
+        "DATE",
+        "opportunity.cbhl_lock_date"
+      ],
+      "e5ymiF1yBHAuQOMiRmq2": [
+        "CBHL Closed Date",
+        "DATE",
+        "opportunity.cbhl_closed_date"
+      ],
+      "ZFXNq8puk6eCOw5UySBv": [
+        "CBHL Status Notes",
+        "LARGE_TEXT",
+        "opportunity.cbhl_status_notes"
+      ],
+      "8Db8tg5cTtbyTDwDvGYA": [
+        "CBHL Lead Disposition",
+        "SINGLE_OPTIONS: Attempted Contact | Not Interested | Unreachable on CRM | Missed Appointment | Active Client | Test Record",
+        "opportunity.cbhl_lead_disposition"
+      ],
+      "UDLZwh0KJDWSaFzvTrOF": [
+        "CBHL Legacy Pipeline",
+        "TEXT",
+        "opportunity.cbhl_legacy_pipeline"
+      ],
+      "pIJp9i06wwTf14vKGA0r": [
+        "CBHL Legacy Stage",
+        "TEXT",
+        "opportunity.cbhl_legacy_stage"
+      ],
+      "0hlFE4ijj8SB73TWuTjD": [
+        "CBHL Legacy Status",
+        "TEXT",
+        "opportunity.cbhl_legacy_status"
+      ],
+      "EV0LM89uXROAMhn0gIwp": [
+        "CBHL Legacy Owner",
+        "TEXT",
+        "opportunity.cbhl_legacy_owner"
+      ],
+      "aGQrrp6Kx7a4fQi4Lydc": [
+        "CBHL Legacy Outreach Occurred",
+        "RADIO: Yes | No | Unknown",
+        "opportunity.cbhl_legacy_outreach_occurred"
+      ]
     },
     "contact_custom_fields": {
-      "hdB9COoga33lwhQ2D60k": ["What can we help with?", "RADIO: Buying a Home | Refinancing | Exploring Loan Options | General Question", "contact.what_can_we_help_with"],
-      "B5QmIhxxt2tMzRfUfp1x": ["Property State (if known)", "TEXT", "contact.property_state_if_known"],
-      "fPPzPGYeAmh0NqL3GIit": ["Inquiry Message", "LARGE_TEXT", "contact.inquiry_message"],
-      "n1hBhMlVT6CDFR3LLxWu": ["CBHL Inquiry Source", "TEXT (hidden form field)", "contact.cbhl_inquiry_source"]
+      "hdB9COoga33lwhQ2D60k": [
+        "What can we help with?",
+        "RADIO: Buying a Home | Refinancing | Exploring Loan Options | General Question",
+        "contact.what_can_we_help_with"
+      ],
+      "B5QmIhxxt2tMzRfUfp1x": [
+        "Property State (if known)",
+        "TEXT",
+        "contact.property_state_if_known"
+      ],
+      "fPPzPGYeAmh0NqL3GIit": [
+        "Inquiry Message",
+        "LARGE_TEXT",
+        "contact.inquiry_message"
+      ],
+      "n1hBhMlVT6CDFR3LLxWu": [
+        "CBHL Inquiry Source",
+        "TEXT (hidden form field)",
+        "contact.cbhl_inquiry_source"
+      ],
+      "I2gvdxyqIZwilh1JOTv6": [
+        "CBHL Phone Status",
+        "SINGLE_OPTIONS: Unknown | Valid (confirmed by staff) | Wrong Number | Disconnected | Unreachable (meaning unconfirmed)",
+        "contact.cbhl_phone_status"
+      ],
+      "7cZGmKGtDh8c0dMT0jbM": [
+        "CBHL Email Status",
+        "SINGLE_OPTIONS: Unknown | Valid (confirmed) | Invalid | Bounced",
+        "contact.cbhl_email_status"
+      ],
+      "ZWptqJN6JSiLJeWa3Jqn": [
+        "CBHL SMS Consent",
+        "CHECKBOX: Yes",
+        "contact.cbhl_sms_consent"
+      ],
+      "Wr8G7TWUjKRmqO4ipDtd": [
+        "CBHL SMS Consent Date",
+        "DATE",
+        "contact.cbhl_sms_consent_date"
+      ]
     },
     "tags": {
       "jMBweNJJ25sMJgadWIUW": "qa test contact",
       "8S36p6mkH8eBpZ5byx69": "cbhl lead-to-loan",
       "3jVvY7NJE34VfxL0vkom": "website inquiry",
       "6oEyNnkoyujG0B7M3NwV": "cbhl stop follow-up",
-      "ZVS68hI3fE3QnF5MwfvX": "cbhl replied"
+      "ZVS68hI3fE3QnF5MwfvX": "cbhl replied",
+      "OFq4qyI1shQad8Lizlwc": "cbhl legacy migrated",
+      "Krhvh9RFrAYE7i8kWhB8": "cbhl test record",
+      "7qIzdVq19zVVJYIJK2nE": "cbhl active lead"
     },
     "custom_values": {
-      "7oVLXRZSbblZ5SnMN80f": ["CBHL Consultation Booking Link", "https://api.leadconnectorhq.com/widget/booking/BSwRRQDlZgYCbEJAPwdE", "{{ custom_values.cbhl_consultation_booking_link }}"]
+      "7oVLXRZSbblZ5SnMN80f": [
+        "CBHL Consultation Booking Link",
+        "https://api.leadconnectorhq.com/widget/booking/BSwRRQDlZgYCbEJAPwdE",
+        "{{ custom_values.cbhl_consultation_booking_link }}"
+      ]
     },
     "calendar": {
       "id": "BSwRRQDlZgYCbEJAPwdE",
       "name": "Home Loan Consultation",
       "slug": "cbhl-consultation",
       "type": "round_robin (optimize for availability)",
-      "team": {"UZlEjQwQOpbnblEdqxzZ": "Mark Rotundo (primary)", "fKG0auB35M17yjCtuV4G": "Teresa Turner"},
+      "team": {
+        "UZlEjQwQOpbnblEdqxzZ": "Mark Rotundo (primary)",
+        "fKG0auB35M17yjCtuV4G": "Teresa Turner"
+      },
       "meeting": "outbound_call (team member calls the booker)",
       "hours": "Mon-Fri 08:00-17:00, location timezone America/New_York",
       "slot": "30 min, 30 min interval, 15 min buffer after, 1 per slot",
@@ -72,7 +271,11 @@
       "assignment": "assign contact to booked team member; skip if contact already has an owner; sticky contact on",
       "native_notifications": "in-app 'booked' and 'confirmation' to assigned user (defaults); no contact-facing confirmation yet",
       "fix_applied": "first update-calendar call (meeting type) wiped openHours to {}; restored with an openHours-only update and re-verified",
-      "traceIds": ["8b02a88b-3e54-45fe-b5a9-f541a815db91", "41df3081-2ab8-4932-b2fe-7ff3dfc26c2c", "7b00defb-b59b-4e5a-9d6b-245fc70ce0de"]
+      "traceIds": [
+        "8b02a88b-3e54-45fe-b5a9-f541a815db91",
+        "41df3081-2ab8-4932-b2fe-7ff3dfc26c2c",
+        "7b00defb-b59b-4e5a-9d6b-245fc70ce0de"
+      ]
     },
     "qa_contact": {
       "id": "TvsVfgogDFS4Ynz4D6eD",
@@ -80,21 +283,109 @@
       "email": "qa.cbhl.001@example.com (reserved domain, undeliverable)",
       "phone": "none",
       "state_left": "DND on SMS/email/call, tags 'qa test contact' + 'cbhl stop follow-up'. Kept for UI workflow tests that must NOT send."
+    },
+    "qa_opportunity_kept": {
+      "id": "y4rOSIYMy2YooyXML50C",
+      "name": "QA Test CBHL 001 - Ext lookup",
+      "stage": "New",
+      "external_loan_id": "QAEXT1001",
+      "purpose": "kept for the duplicate-opportunity re-test; delete after it"
     }
   },
   "tests": [
-    {"test": "Write access", "result": "PASS", "evidence": "tag created (201) and read back (200)"},
-    {"test": "Calendar availability", "result": "PASS", "evidence": "get-slots 2026-11-04..06: 18 slots per weekday 08:00-16:30 ET; none on Sat 11-07", "traceId": "3fa00a1f-abfe-411e-8f46-65dbf41b2b94"},
-    {"test": "Calendar widget renders publicly", "result": "NOT RUN", "reason": "session network policy denies api.leadconnectorhq.com (CONNECT 403)"},
-    {"test": "Duplicate prevention (contact)", "result": "PASS", "evidence": "upsert with 'QA.CBHL.001@Example.com' returned new:false and the same contact id TvsVfgogDFS4Ynz4D6eD", "traceId": "b7fe5b50-24a0-9e4e-ad4c-d25e64d8e8b4"},
-    {"test": "Opportunity create in new pipeline with per-application fields", "result": "PASS", "evidence": "opp PS7Nh2LLpbc4Vbb5kSSo created in New with External Loan ID QA-A, Loan Purpose, Lead Received Date"},
-    {"test": "Status path New > Connected > Started (New) > Preapproval > Closed(won)", "result": "PASS", "evidence": "each update-opportunity read back the new stage; date fields Application Received, Preapproval Issued, Lock, Closed all persisted; status won on Closed"},
-    {"test": "Unsuccessful outcome (Withdrawn, lost, notes)", "result": "PASS", "evidence": "stage Withdrawn, status lost, CBHL Status Notes saved"},
-    {"test": "Second application for same contact (multi-loan)", "result": "FAIL (setting)", "evidence": "create-opportunity 400 OPPORTUNITY_NO_DUPLICATE while first was open AND after it was won. Location setting allowDuplicateOpportunity=false.", "traceIds": ["5f44d4b5-762c-407f-9518-d1cf6fa2a757", "3cbe4802-f2e6-4baa-ba16-8e4c95bacd79"]},
-    {"test": "DND / opt-out data", "result": "PASS", "evidence": "dnd true, SMS/email/call DND active, stop tag present; GHL logged 'DND enabled by customer' activity"},
-    {"test": "Legacy published workflows reacting to an API-created contact + opportunity in the new pipeline", "result": "No side effects observed (3 min window)", "evidence": "conversation WpoMuldJbHbT6b7pL5lL holds only native activity entries (opportunity created/updated/status, DND). No messages, no tasks, contact not deleted or re-tagged."},
-    {"test": "Workflow execution / logs", "result": "NOT POSSIBLE", "reason": "workflow API 403 WORKFLOW_API_NOT_ENABLED_FOR_LOCATION"}
+    {
+      "test": "Write access",
+      "result": "PASS",
+      "evidence": "tag created (201) and read back (200)"
+    },
+    {
+      "test": "Calendar availability",
+      "result": "PASS",
+      "evidence": "get-slots 2026-11-04..06: 18 slots per weekday 08:00-16:30 ET; none on Sat 11-07",
+      "traceId": "3fa00a1f-abfe-411e-8f46-65dbf41b2b94"
+    },
+    {
+      "test": "Calendar widget renders publicly",
+      "result": "NOT RUN",
+      "reason": "session network policy denies api.leadconnectorhq.com (CONNECT 403)"
+    },
+    {
+      "test": "Duplicate prevention (contact)",
+      "result": "PASS",
+      "evidence": "upsert with 'QA.CBHL.001@Example.com' returned new:false and the same contact id TvsVfgogDFS4Ynz4D6eD",
+      "traceId": "b7fe5b50-24a0-9e4e-ad4c-d25e64d8e8b4"
+    },
+    {
+      "test": "Opportunity create in new pipeline with per-application fields",
+      "result": "PASS",
+      "evidence": "opp PS7Nh2LLpbc4Vbb5kSSo created in New with External Loan ID QA-A, Loan Purpose, Lead Received Date"
+    },
+    {
+      "test": "Status path New > Connected > Started (New) > Preapproval > Closed(won)",
+      "result": "PASS",
+      "evidence": "each update-opportunity read back the new stage; date fields Application Received, Preapproval Issued, Lock, Closed all persisted; status won on Closed"
+    },
+    {
+      "test": "Unsuccessful outcome (Withdrawn, lost, notes)",
+      "result": "PASS",
+      "evidence": "stage Withdrawn, status lost, CBHL Status Notes saved"
+    },
+    {
+      "test": "Second application for same contact (multi-loan)",
+      "result": "FAIL (setting)",
+      "evidence": "create-opportunity 400 OPPORTUNITY_NO_DUPLICATE while first was open AND after it was won. Location setting allowDuplicateOpportunity=false.",
+      "traceIds": [
+        "5f44d4b5-762c-407f-9518-d1cf6fa2a757",
+        "3cbe4802-f2e6-4baa-ba16-8e4c95bacd79"
+      ]
+    },
+    {
+      "test": "DND / opt-out data",
+      "result": "STORED ONLY",
+      "evidence": "dnd true, SMS/email/call DND active and stop tag present; GHL logged a DND activity. This proves the values can be stored. It does NOT prove follow-up stops: no CBHL workflow exists yet. End-to-end stop test OUTSTANDING."
+    },
+    {
+      "test": "Legacy published workflows reacting to an API-created contact + opportunity in the new pipeline",
+      "result": "INCONCLUSIVE",
+      "evidence": "No legacy activity observed on the QA contact within ~3 minutes (only native activity entries). This does NOT establish that delayed, scheduled or differently-triggered legacy workflows (form, tag, stage, date-based) cannot interfere. Check OUTSTANDING after legacy definitions are inspected."
+    },
+    {
+      "test": "Workflow execution / logs",
+      "result": "NOT POSSIBLE",
+      "reason": "workflow API 403 WORKFLOW_API_NOT_ENABLED_FOR_LOCATION"
+    },
+    {
+      "test": "Application lookup by External Loan ID via full-text search",
+      "result": "NOT SUPPORTED",
+      "evidence": "search-opportunities-advanced query and search-opportunity q='QAEXT1001' returned 0; the same record IS found by name ('Ext lookup'), so search doesn't index custom fields",
+      "traceIds": [
+        "2c4e3842-b58b-44a3-8d27-7e49da088edc",
+        "796c6543-1d1b-4073-9f03-2a37edd95d0c",
+        "fe47c50c-1508-435f-99c5-d9ed2102ee6c"
+      ]
+    },
+    {
+      "test": "Application lookup by listing the contact's opportunities",
+      "result": "PASS",
+      "evidence": "search-opportunity contactId+pipelineId+status=all returns each opportunity with customFields[].fieldValueString = External Loan ID, so retry-safe matching is possible",
+      "traceId": "ab8d4f17-d35e-4774-a397-f4c900990ece"
+    },
+    {
+      "test": "Second application after enabling Allow duplicate opportunities",
+      "result": "OUTSTANDING",
+      "reason": "setting not changeable through the connector; needs browser route"
+    },
+    {
+      "test": "Reply stops sales sequence but not service messages",
+      "result": "OUTSTANDING",
+      "reason": "needs workflows"
+    }
   ],
-  "cleanup": {"deleted": ["QA opportunity PS7Nh2LLpbc4Vbb5kSSo (created by this session)"]},
-  "not_changed": "No existing workflow, form, pipeline, opportunity, contact, conversation, appointment, calendar, field, value or tag was edited or deleted. Main CBB, MapScore and Capital accounts were not touched."
+  "cleanup": {
+    "deleted": [
+      "QA opportunity PS7Nh2LLpbc4Vbb5kSSo (created by this session)"
+    ]
+  },
+  "not_changed": "No existing workflow, form, pipeline, opportunity, contact, conversation, appointment, calendar, field, value or tag was edited or deleted. Main CBB, MapScore and Capital accounts were not touched.",
+  "_revision": "rev 2 (2026-11-03 ~14:10 UTC): corrected two test conclusions; added migration/disposition/consent fields, 3 tags, lookup tests."
 }
